@@ -16,12 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from Videoflix.Users.views import LoginView, LogoutView, register_user
 
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
-    path('users/', include('Users.urls')),
+    # path('api/', include('Users.urls')),
 ]

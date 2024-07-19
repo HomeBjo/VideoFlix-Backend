@@ -2,7 +2,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from Videoflix.Users.views import LoginView, LogoutView, register_user
+from Users.views import LoginView, LogoutView, register_user
+
 
 
 router = DefaultRouter()

@@ -39,9 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
     'Users',
     'Video_App',
 ]
+
+#HEY ALEKS   MABYE HIER NOCH DEIN ZEUG REIN WEGEN RESTFRAMEWORK  WOLLTE NOCH BEI DEN ALTEN PROJEKTEN GUCKEN ABER DENKE DAS IST JA DAS WAS DU HAST
 
 
 

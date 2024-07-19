@@ -8,6 +8,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.views import APIView
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
+from Users.serializers import UserSerializer
 
 
 

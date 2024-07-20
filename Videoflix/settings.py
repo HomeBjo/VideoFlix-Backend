@@ -26,7 +26,35 @@ SECRET_KEY = config('DB_KEY'),
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1'
+]
+
+# rest_framework Authentication
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+}
+
+
+# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+    "http://localhost:8000",
+    "http://127.0.0.1:4200",
+    "http://127.0.0.1:8000",
+]
 
 
 # Application definition
@@ -43,6 +71,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'Users',
     'Video_App',
+    'corsheaders',
 ]
 
 #HEY ALEKS   MABYE HIER NOCH DEIN ZEUG REIN WEGEN RESTFRAMEWORK  WOLLTE NOCH BEI DEN ALTEN PROJEKTEN GUCKEN ABER DENKE DAS IST JA DAS WAS DU HAST
@@ -50,6 +79,7 @@ INSTALLED_APPS = [
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

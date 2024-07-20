@@ -9,37 +9,85 @@ from rest_framework.views import APIView
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from Users.serializers import UserSerializer
+from rest_framework import  viewsets
 
 
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def register_user(request):
+#     """
+#     API endpoint for user registration.
+#     """
+#     serialized = UserSerializer(data=request.data)
+#     if serialized.is_valid():
+#         user = serialized.save()
+#         token, created = Token.objects.get_or_create(user=user)
+#         return Response({
+#             'token': token.key,
+#             'user_id': user.pk,
+#             'email': user.email
+#         }, status=status.HTTP_201_CREATED)
+#     else:
+#         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+class RegisterViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def register_user(request):
-    """
-    API endpoint for user registration.
-    """
-    serialized = UserSerializer(data=request.data)
-    if serialized.is_valid():
-        user = serialized.save()
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'token': token.key,
-            'user_id': user.pk,
-            'email': user.email
-        }, status=status.HTTP_201_CREATED)
-    else:
-        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+    def create(self, request):
+        """
+        Handle user registration.
+        """
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                'token': token.key,
+                'user_id': user.pk,
+                'email': user.email
+            }, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
 
-class LoginView(ObtainAuthToken):
+# class LoginView(ObtainAuthToken):
+#     """
+#     API endpoint for user login. Inherits from ObtainAuthToken to provide token authentication.
+#     """
+#     def post(self, request, *args, **kwargs):
+#         """
+#         Handle user login and return authentication token.
+#         """
+#         serializer = self.serializer_class(data=request.data,
+#                                            context={'request': request})
+#         serializer.is_valid(raise_exception=True)
+#         user = serializer.validated_data['user']
+#         token, created = Token.objects.get_or_create(user=user)
+#         return Response({
+#             'token': token.key,
+#             'user_id': user.pk,
+#             'email': user.email
+#         })
+        
+        
+        
+# class LogoutView(APIView):
+#     """
+#     API endpoint for user logout.
+#     """
+#     def post(self, request, format=None):
+#         """
+#         Handle user logout and provide a success message.
+#         """
+#         logout(request)
+#         return Response({'message': 'Logout successful'})
+    
+    
+class LoginViewSet(ObtainAuthToken, viewsets.ViewSet):
     """
-    API endpoint for user login. Inherits from ObtainAuthToken to provide token authentication.
+    Handle user login and return authentication token.
     """
-    def post(self, request, *args, **kwargs):
-        """
-        Handle user login and return authentication token.
-        """
+    def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data,
                                            context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -50,17 +98,12 @@ class LoginView(ObtainAuthToken):
             'user_id': user.pk,
             'email': user.email
         })
-        
-        
-        
-class LogoutView(APIView):
+
+
+class LogoutViewSet(viewsets.ViewSet):
     """
-    API endpoint for user logout.
+    Handle user logout.
     """
-    def post(self, request, format=None):
-        """
-        Handle user logout and provide a success message.
-        """
+    def create(self, request, *args, **kwargs):
         logout(request)
         return Response({'message': 'Logout successful'})
-    

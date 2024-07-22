@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from Video_App.models import Video
 from Video_App.serializers import VideoSerializer
+from rest_framework import  viewsets
 
-
-class VideoListView(APIView):
+class VideoListView(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):

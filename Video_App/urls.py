@@ -5,7 +5,7 @@ from Video_App.views import VideoListView
 
 
 router = DefaultRouter()
-router.register(r'videos',  VideoListView, basename='videos')
+router.register(r'get_videos',  VideoListView, basename='get_videos')
 
 app_name = 'Video_App'
 

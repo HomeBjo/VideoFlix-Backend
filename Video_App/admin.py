@@ -1,3 +1,12 @@
 from django.contrib import admin
 
-# Register your models here.
+from Users.forms import CostomUserCreationForm
+from .models import FavoriteVideo, Video
+
+
+
+admin.site.register(Video)
+admin.site.register(FavoriteVideo)
+
+
+    

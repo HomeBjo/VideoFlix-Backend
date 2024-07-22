@@ -1,10 +1,13 @@
 from rest_framework import serializers
 from Users.models import CustomUser
+from Video_App.serializers import VideoSerializer
 
 class UserSerializer(serializers.ModelSerializer):
+    favorite_videos = VideoSerializer(many=True, read_only=True)
+    
     class Meta:
-        model = CustomUser 
-        fields = ('username', 'password', 'email')
+        model = CustomUser
+        fields = ('username', 'password', 'email', 'favorite_videos')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

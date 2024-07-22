@@ -21,6 +21,6 @@ from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api-auth/', include('rest_framework.urls')),  # Optional: Für das Browsable API-Login
+    path('api-auth/', include('rest_framework.urls')), 
     path('users/', include('Users.urls')),
 ]

@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Video, FavoriteVideo
 
 class VideoSerializer(serializers.ModelSerializer):
+    is_favorite = serializers.SerializerMethodField()
     class Meta:
         model = Video
         fields = '__all__'

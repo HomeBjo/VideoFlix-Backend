@@ -1,17 +1,63 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from Video_App.models import Video
-from Video_App.serializers import VideoSerializer
-from rest_framework import  viewsets
+from rest_framework.response import Response
+from .models import Video, FavoriteVideo
+from .serializers import VideoSerializer
 
-class VideoViewSet(viewsets.ViewSet):
+class VideoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
 
-  
-    def list(self, request, *args, **kwargs):
-        all_videos = Video.objects.all()
-        serializer = VideoSerializer(all_videos, many=True, context={'request': request})
-        return Response(serializer.data)
+    @action(detail=True, methods=['post'])
+    def toggle_favorite(self, request, pk=None):
+        video = self.get_object()  # Verwende self.get_object() um das Video zu holen
+        user = request.user
+        favorite, created = FavoriteVideo.objects.get_or_create(user=user, video=video)
+        if created:
+            return Response({'status': 'Video added to favorites'}, status=status.HTTP_201_CREATED)
+        else:
+            favorite.delete()
+            return Response({'status': 'Video removed from favorites'}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+# # ab hier das VIEWSET OHNE MODEL
+
+
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# from rest_framework.permissions import IsAuthenticated
+# from Video_App.models import Video, FavoriteVideo
+# from Video_App.serializers import VideoSerializer
+# from rest_framework import viewsets, status
+# from rest_framework.decorators import action
+
+# class VideoViewSet(viewsets.ViewSet):
+#     permission_classes = [IsAuthenticated]
+
+#     def list(self, request, *args, **kwargs):
+#         all_videos = Video.objects.all()
+#         serializer = VideoSerializer(all_videos, many=True, context={'request': request})
+#         return Response(serializer.data)
+    
+#     @action(detail=True, methods=['post'])
+#     def toggle_favorite(self, request, pk=None):
+#         video = self.get_object()  # Verwende self.get_object() um das Video zu holen
+#         user = request.user
+#         favorite, created = FavoriteVideo.objects.get_or_create(user=user, video=video)
+#         if created:
+#             return Response({'status': 'Video added to favorites'}, status=status.HTTP_201_CREATED)
+#         else:
+#             favorite.delete()
+#             return Response({'status': 'Video removed from favorites'}, status=status.HTTP_204_NO_CONTENT)
+    
+#     def get_object(self):
+#         video_id = self.kwargs.get('pk')
+#         return Video.objects.get(pk=video_id)
+
+
+
+
+

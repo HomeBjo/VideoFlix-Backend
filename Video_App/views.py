@@ -5,18 +5,11 @@ from Video_App.models import Video
 from Video_App.serializers import VideoSerializer
 from rest_framework import  viewsets
 
-class VideoListView(viewsets.ViewSet):
+class VideoViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        user = request.user
         all_videos = Video.objects.all()
-        favorite_videos = user.favorite_videos.all()
+        serializer = VideoSerializer(all_videos, many=True)
 
-        all_videos_serializer = VideoSerializer(all_videos, many=True)
-        favorite_videos_serializer = VideoSerializer(favorite_videos, many=True)
-
-        return Response({
-            'all_videos': all_videos_serializer.data,
-            'favorite_videos': favorite_videos_serializer.data,
-        })
+        return Response({'videos': serializer.data})

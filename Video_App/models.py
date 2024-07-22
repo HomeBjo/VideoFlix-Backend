@@ -1,15 +1,11 @@
-
 from django.db import models
+from Users.models import CustomUser
 
 
-# class EditVideos(models.Model):
-#     favorite = models.BooleanField(default=False)
-    
-    
 class Video(models.Model):
     title = models.CharField(max_length=255)
     url = models.URLField()
-    # editVideo = models.OneToOneField(EditVideos, on_delete=models.CASCADE, default=False)
+  
     favorite = models.BooleanField(default=False)
     
     
@@ -17,3 +13,9 @@ class Video(models.Model):
         return self.title
     
     
+class FavoriteVideo(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+        
+    class Meta:
+        unique_together = ('user', 'video')

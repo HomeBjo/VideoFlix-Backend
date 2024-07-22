@@ -5,6 +5,3 @@ class CustomUser(AbstractUser):
     custom = models.CharField(max_length=500, default='')    
     address = models.CharField(max_length=150, default='')   
     phone = models.CharField(max_length=25, default='')
-    favorite_videos = models.ManyToManyField('Video_App.Video', related_name='favorited_by_users')
-    
-

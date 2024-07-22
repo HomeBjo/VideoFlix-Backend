@@ -7,9 +7,11 @@ from rest_framework import  viewsets
 
 class VideoViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+    queryset = Video.objects.all()
+    serializer_class = VideoSerializer
 
-    def get(self, request, *args, **kwargs):
+  
+    def list(self, request, *args, **kwargs):
         all_videos = Video.objects.all()
-        serializer = VideoSerializer(all_videos, many=True)
-
-        return Response({'videos': serializer.data})
+        serializer = VideoSerializer(all_videos, many=True, context={'request': request})
+        return Response(serializer.data)

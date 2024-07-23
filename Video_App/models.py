@@ -9,6 +9,7 @@ class Video(models.Model):
     created_at = models.DateField(default=date.today)
     description = models.CharField(max_length=500)
     video_file = models.FileField(upload_to='videos', blank=True, null=True)
+    category = models.CharField(max_length=100) 
     
     
     
@@ -19,7 +20,7 @@ class Video(models.Model):
 class FavoriteVideo(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
-    favorite = models.BooleanField(default=False)
+   
         
     class Meta:
         unique_together = ('user', 'video')

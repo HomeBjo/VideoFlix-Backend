@@ -11,4 +11,6 @@ app_name = 'Video_App'
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('set_favorites/', VideoViewSet.as_view({'post': 'set_favorites'}), name='set-favorites'),
+    path('get_favorites/', VideoViewSet.as_view({'get': 'get_favorites'}), name='get-favorites'),
 ]

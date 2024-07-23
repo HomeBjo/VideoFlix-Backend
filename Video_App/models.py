@@ -9,7 +9,7 @@ class Video(models.Model):
     created_at = models.DateField(default=date.today)
     description = models.CharField(max_length=500)
     video_file = models.FileField(upload_to='videos', blank=True, null=True)
-    category = models.CharField(max_length=100, default='all_videos') 
+    category = models.CharField(max_length=100) 
     
     
     

@@ -38,9 +38,3 @@ class VideoViewSet(viewsets.ModelViewSet):
             return Response({'status': 'Favorites set'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['get'])
-    def get_favorites(self, request):
-        user = request.user
-        favorite_videos = Video.objects.filter(favoritevideo__user=user)
-        serializer = VideoSerializer(favorite_videos, many=True, context={'request': request})
-        return Response(serializer.data)

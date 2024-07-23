@@ -1,9 +1,11 @@
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Video, FavoriteVideo
+from .models import Video
 from .serializers import VideoSerializer, FavoriteVideoSerializer
+
 
 class VideoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -32,15 +34,10 @@ class VideoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def set_favorites(self, request):
         user = request.user
-        serializer = FavoriteVideoSerializer(data=request.data)
+        serializer = FavoriteVideoSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.update(user, serializer.validated_data)
-            return Response({'status': 'Favorites set'}, status=status.HTTP_200_OK)
+            updated_favorites = serializer.to_representation(user)
+            return Response(updated_favorites, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['get'])
-    def get_favorites(self, request):
-        user = request.user
-        favorite_videos = Video.objects.filter(favoritevideo__user=user)
-        serializer = VideoSerializer(favorite_videos, many=True, context={'request': request})
-        return Response(serializer.data)

@@ -21,3 +21,27 @@ def delete_video_file(sender, instance, **kwargs):
         if os.path.isfile(instance.video_file.path):
             print('Video deleted')
             os.remove(instance.video_file.path)
+            
+            
+############ anfang einer filter delte Video funktion 
+# @receiver(post_delete, sender=Video)
+# def delete_video_file(sender, instance, **kwargs):
+#     print('Video start deleting')
+#     if instance.video_file:
+#         base_path = instance.video_file.path
+#         base_name, ext = os.path.splitext(base_path)  # Trennt den Dateinamen von der Erweiterung
+
+#         # Muster für die zu löschenden Dateien erstellen
+#         pattern = f"{base_name}_*{ext}"
+#         files_to_delete = glob.glob(pattern)
+
+#         # Alle gefundenen Dateien löschen
+#         for file_path in files_to_delete:
+#             if os.path.isfile(file_path):
+#                 print(f'Deleting {file_path}')
+#                 os.remove(file_path)
+
+#         # Schließlich das Originalvideo löschen
+#         if os.path.isfile(base_path):
+#             print(f'Deleting original video: {base_path}')
+#             os.remove(base_path)

@@ -15,9 +15,9 @@ def video_post_save(sender, instance, created, **kwargs):
 
 @receiver(post_delete, sender=Video)
 def delete_video_file(sender, instance, **kwargs):
-    print('Video start delete')
+    print('Video start deleting')
     if instance.video_file:
-        print('Video ###################')
+        print(f'Video: {instance.video_file} deleting')
         if os.path.isfile(instance.video_file.path):
             print('Video deleted')
             os.remove(instance.video_file.path)

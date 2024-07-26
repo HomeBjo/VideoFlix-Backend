@@ -11,5 +11,5 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')), 
     path('users/', include('Users.urls')),
     path('videos/', include('Video_App.urls')),
-    
+    path('django-rq/', include('django_rq.urls'))
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT) + debug_toolbar_urls()

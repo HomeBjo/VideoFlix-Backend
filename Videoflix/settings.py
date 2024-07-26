@@ -193,7 +193,7 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache",        
         "LOCATION": "redis://127.0.0.1:6379/1",        
         "OPTIONS": {   
-            # "PASSWORD": "some-password",  # nachtragen, wenn nötig - siehe config -> Redis      
+            "PASSWORD": "foobared",  # nachtragen, wenn nötig - siehe config -> Redis      
             "CLIENT_CLASS": "django_redis.client.DefaultClient"        
         },        
         "KEY_PREFIX": "Videoflix"    
@@ -209,12 +209,11 @@ RQ_QUEUES = {
         'HOST': 'localhost',
         'PORT': 6379,
         'DB': 0,
-        'USERNAME': 'some-user',
-        'PASSWORD': 'some-password',
+        'PASSWORD': 'foobared', 
         'DEFAULT_TIMEOUT': 360,
-        'REDIS_CLIENT_KWARGS': {    # Eventual additional Redis connection arguments
-            'ssl_cert_reqs': None,
-        },
+        # 'REDIS_CLIENT_KWARGS': {    # Eventual additional Redis connection arguments
+        #     'ssl_cert_reqs': None,  # für auth bei redis
+        # },
     },
     
     # ---->  BEI BEDARF DIE PRIO EINKOMMENTIEREN <----
@@ -237,6 +236,7 @@ RQ_QUEUES = {
     #     },
     # },
     # 'high': {
+    #      # MAIL BEI REGISTRIERUNG HIER REIN PACKEN --------------------------------------------------------
     #     'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379/0'), # If you're on Heroku
     #     'DEFAULT_TIMEOUT': 500,
     # },
@@ -245,6 +245,11 @@ RQ_QUEUES = {
     #     'PORT': 6379,
     #     'DB': 0,
     # }
+}
+
+RQ = {
+    'WORKER_CLASS': 'rq.worker.SimpleWorker',  # Verwenden des einfachen Workers für Windows
+    'DEATH_PENALTY_CLASS': 'rq.timeouts.NoopDeathPenalty'  # Verwendet eine Noop Death Penalty unter Windows
 }
 
 # RQ_EXCEPTION_HANDLERS = ['path.to.my.handler'] # If you need custom exception handlers

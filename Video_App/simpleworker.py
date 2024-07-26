@@ -13,6 +13,8 @@ class BaseDeathPenalty(object):
 
 
 class SimpleWorker(Worker):
+    death_penalty_class = BaseDeathPenalty
+
     def main_work_horse(self, *args, **kwargs):
         raise NotImplementedError("Test worker does not implement this method")
 

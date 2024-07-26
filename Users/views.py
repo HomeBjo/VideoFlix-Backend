@@ -1,15 +1,20 @@
-from django.shortcuts import render
+
 from rest_framework.permissions import AllowAny
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.views import APIView
 from django.contrib.auth import logout
-from django.contrib.auth.models import User
 from Users.serializers import UserSerializer
 from rest_framework import  viewsets
+from django.views.decorators.cache import cache_page
+from Videoflix.settings import CACHE_TTL
+from django.conf import settings
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+
+
+
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 
 
@@ -37,6 +42,7 @@ class LoginViewSet(ObtainAuthToken, viewsets.ViewSet):
     """
     Handle user login and return authentication token.
     """
+    @cache_page(CACHE_TTL)
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data,
                                            context={'request': request})

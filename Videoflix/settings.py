@@ -27,9 +27,15 @@ SECRET_KEY = config('DB_KEY'),
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# rest_framework Authentication
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1'
+]
+
+# Django Toolbar
+INTERNAL_IPS = [
+    "127.0.0.1",
 ]
 
 # rest_framework Authentication
@@ -73,6 +79,8 @@ INSTALLED_APPS = [
     'Video_App.apps.VideoAppConfig',
     'Users',
     'corsheaders',
+    'django_rq',
+    'debug_toolbar',
 ]
 
 # fileUpload
@@ -82,6 +90,7 @@ MEDIA_URL = '/media/'
 
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -189,3 +198,49 @@ CACHES = {
         "KEY_PREFIX": "Videoflix"    
         }
     }
+
+#Django RQ
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'USERNAME': 'some-user',
+        'PASSWORD': 'some-password',
+        'DEFAULT_TIMEOUT': 360,
+        'REDIS_CLIENT_KWARGS': {    # Eventual additional Redis connection arguments
+            'ssl_cert_reqs': None,
+        },
+    },
+    
+    # ---->  BEI BEDARF DIE PRIO EINKOMMENTIEREN <----
+    
+    # 'with-sentinel': {    
+    #     'SENTINELS': [('localhost', 26736), ('localhost', 26737)],
+    #     'MASTER_NAME': 'redismaster',
+    #     'DB': 0,
+    #     # Redis username/password
+    #     'USERNAME': 'redis-user',
+    #     'PASSWORD': 'secret',
+    #     'SOCKET_TIMEOUT': 0.3,
+    #     'CONNECTION_KWARGS': {  # Eventual additional Redis connection arguments
+    #         'ssl': True
+    #     },
+    #     'SENTINEL_KWARGS': {    # Eventual Sentinel connection arguments
+    #         # If Sentinel also has auth, username/password can be passed here
+    #         'username': 'sentinel-user',
+    #         'password': 'secret',
+    #     },
+    # },
+    # 'high': {
+    #     'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379/0'), # If you're on Heroku
+    #     'DEFAULT_TIMEOUT': 500,
+    # },
+    # 'low': {
+    #     'HOST': 'localhost',
+    #     'PORT': 6379,
+    #     'DB': 0,
+    # }
+}
+
+# RQ_EXCEPTION_HANDLERS = ['path.to.my.handler'] # If you need custom exception handlers

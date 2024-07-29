@@ -211,6 +211,7 @@ RQ_QUEUES = {
         'DB': 0,
         'PASSWORD': 'foobared', 
         'DEFAULT_TIMEOUT': 360,
+        'WORKER_CLASS': 'rq.worker.SimpleWorker'
         # 'REDIS_CLIENT_KWARGS': {    # Eventual additional Redis connection arguments
         #     'ssl_cert_reqs': None,  # für auth bei redis
         # },
@@ -249,6 +250,7 @@ RQ_QUEUES = {
 
 RQ = {
     'WORKER_CLASS': 'rq.worker.SimpleWorker',  # Verwenden des einfachen Workers für Windows
+    # 'WORKER_CLASS': 'rq_win.WindowsWorker',  # Verwenden des einfachen Workers für Windows
     'DEATH_PENALTY_CLASS': 'rq.timeouts.NoopDeathPenalty'  # Verwendet eine Noop Death Penalty unter Windows
 }
 

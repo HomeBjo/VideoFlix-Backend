@@ -10,4 +10,5 @@ def convert_video_480p(source):
     cmd = 'ffmpeg -i "{}" -s hd480 -c:v libx264 -crf 23 -c:a aac -strict -2 "{}"'.format(linux_source, linux_target)
     run = subprocess.run(cmd, capture_output=True, shell=True)
     
-    #  cmd = 'C:/usr/ffmpeg/bin/ffmpeg.exe -i "{}" -s hd480 -c:v libx264 -crf 23 -c:a aac -strict -2 "{}"'.format(source, new_file)
+    #cmd = 'ffmpeg -i "{}" -s hd480 -c:v libx264 -crf 23 -c:a aac -strict -2 "{}"'.format(source, target) <- später zum testend der Geschwindigkeit ersetzen
+    # cmd = 'C:/usr/ffmpeg/bin/ffmpeg.exe -i "{}" -s hd480 -c:v libx264 -crf 23 -c:a aac -strict -2 "{}"'.format(source, new_file)

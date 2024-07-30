@@ -248,10 +248,4 @@ RQ_QUEUES = {
     # }
 }
 
-RQ = {
-    'WORKER_CLASS': 'rq.worker.SimpleWorker',  # Verwenden des einfachen Workers für Windows
-    # 'WORKER_CLASS': 'rq_win.WindowsWorker',  # Verwenden des einfachen Workers für Windows
-    'DEATH_PENALTY_CLASS': 'rq.timeouts.NoopDeathPenalty'  # Verwendet eine Noop Death Penalty unter Windows
-}
-
 # RQ_EXCEPTION_HANDLERS = ['path.to.my.handler'] # If you need custom exception handlers

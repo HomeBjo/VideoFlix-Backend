@@ -81,7 +81,12 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_rq',
     'debug_toolbar',
+    'import_export',
 ]
+
+IMPORT_EXPORT_USE_TRANSACTIONS =  True
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/staticfiles')
 
 # fileUpload
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

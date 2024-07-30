@@ -1,12 +1,21 @@
 from django.contrib import admin
+from Users.forms import CustomUserCreationForm
 from .models import CustomUser
-from .forms import CostomUserCreationForm
 from django.contrib.auth.admin import UserAdmin
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+
+
+
+class CustomUserResource(resources.ModelResource):
+    class Meta:
+        model = CustomUser
+
 
 
 @admin.register(CustomUser)
-class CostomUserAdmin(admin.ModelAdmin):
-    add_form = CostomUserCreationForm
+class CustomUserAdmin(ImportExportModelAdmin, UserAdmin):
+    add_form = CustomUserCreationForm
     fieldsets = (
         # *UserAdmin.fieldsets, # Admininterfaceanzeige unten
         (
@@ -21,5 +30,9 @@ class CostomUserAdmin(admin.ModelAdmin):
         ),
         *UserAdmin.fieldsets # Admininterfaceanzeige oben
     )
+    resource_class = CustomUserResource
+
+
+    
 
 

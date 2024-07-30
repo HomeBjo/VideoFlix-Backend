@@ -211,7 +211,6 @@ RQ_QUEUES = {
         'DB': 0,
         'PASSWORD': 'foobared', 
         'DEFAULT_TIMEOUT': 360,
-        'WORKER_CLASS': 'rq.worker.SimpleWorker'
         # 'REDIS_CLIENT_KWARGS': {    # Eventual additional Redis connection arguments
         #     'ssl_cert_reqs': None,  # für auth bei redis
         # },

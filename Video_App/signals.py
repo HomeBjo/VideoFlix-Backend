@@ -21,11 +21,21 @@ def video_post_save(sender, instance, created, **kwargs):
 def delete_video_file(sender, instance, **kwargs):
     print('Video start deleting')
     if instance.video_file:
-        print(f'Video: {instance.video_file} deleting')
+        print(f'found Video: {instance.video_file}')
         if os.path.isfile(instance.video_file.path):
-            print('Video deleted')
+            print(f'Video deleted: {instance.video_file.path}')
             os.remove(instance.video_file.path)
             
+            video_480p = os.path.splitext(instance.video_file.path)[0] + '_480p.mp4'
+            if os.path.isfile(video_480p):
+                os.remove(video_480p)
+                print(f'Video 480p deleted: {video_480p}')
+                
+            video_720p = os.path.splitext(instance.video_file.path)[0] + '_720p.mp4'
+            if os.path.isfile(video_720p):
+                os.remove(video_720p)
+                print(f'Video 720p deleted: {video_720p}')
+
             
 ############ anfang einer filter delte Video funktion 
 # @receiver(post_delete, sender=Video)

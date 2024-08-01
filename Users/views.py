@@ -1,4 +1,5 @@
 
+from email import message
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -13,10 +14,11 @@ from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
 
-
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
-
+def activateEmail(request, user, email):
+    message.sucsess(request, f'Dear <b>{user.username}</b>, lieace go to yourt email <b>{email}</b> inbox and click on \
+        recieved activation link ro confirm and complete your registration. <b>Note:</b> Check your spam folder!')
 
 class RegisterViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
@@ -27,8 +29,12 @@ class RegisterViewSet(viewsets.ViewSet):
         """
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
+            user = serializer.save(commit=False)
+            user.is_active = False
             token, created = Token.objects.get_or_create(user=user)
+            user.save()
+            email = serializer.validated_data.get('email')
+            activateEmail(request, user, email)
             return Response({
                 'token': token.key,
                 'user_id': user.pk,

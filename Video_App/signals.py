@@ -59,3 +59,14 @@ def delete_video_file(sender, instance, **kwargs):
 #         if os.path.isfile(base_path):
 #             print(f'Deleting original video: {base_path}')
 #             os.remove(base_path)
+
+# @receiver(post_delete, sender=Video)
+# def delete_video_file(sender, instance, **kwargs):
+#     if instance.video_file:
+#         base_path = os.path.splitext(instance.video_file.path)[0]
+#         file_extensions = ['', '_480p.mp4', '_720p.mp4']
+        
+#         for extension in file_extensions:
+#             file_path = base_path if extension == '' else base_path + extension
+#             if os.path.isfile(file_path):
+#                 os.remove(file_path)

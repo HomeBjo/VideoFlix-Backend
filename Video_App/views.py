@@ -2,8 +2,14 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Video, FavoriteVideo
+from .models import Video
 from .serializers import VideoSerializer, FavoriteVideoSerializer
+from django.shortcuts import render
+import redis
+from rq import Queue
+from rq.job import Job
+
+
 
 class VideoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -37,4 +43,17 @@ class VideoViewSet(viewsets.ModelViewSet):
             serializer.update(user, serializer.validated_data)
             return Response({'status': 'Favorites set'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+def failed_job_detail(request, job_id):
+    job = Job.fetch(job_id, connection=redis.Redis(host='localhost', port=6379, db=0, password='foobared'))
+    
+    context = {
+        'job_id': job.id,
+        'status': job.get_status(),
+        'result': job.result,
+        'exc_info': job.exc_info,
+    }
+    return render(request, 'html/failed_job_detail.html', context)
 

@@ -242,3 +242,16 @@ RQ_QUEUES = {
 }
 
 # RQ_EXCEPTION_HANDLERS = ['path.to.my.handler'] # If you need custom exception handlers
+
+# Email authentication
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_FROM = config('GMAIL_MAIL')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('GMAIL_MAIL')
+EMAIL_HOST_PASSWORD = config('GMAIL_PW')
+# EMAIL_FILE_PATH = 'Videoflix/Users/templates/templates_activate_account.html'
+
+# 4h timer
+PASSWORD_RESET_TIMEOUT = 14400

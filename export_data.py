@@ -1,14 +1,13 @@
 import django
 import os
+from Video_App.admin import VideoResource, FavoriteVideoResource
+from Users.admin import CustomUserResource
 
 # Set the default Django settings module for the 'shell' command.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Videoflix.settings')
 
 # Initialize Django
 django.setup()
-
-from Video_App.admin import VideoResource, FavoriteVideoResource
-from Users.admin import CustomUserResource
 
 # Export data from VideoResource
 video_resource = VideoResource()

@@ -4,13 +4,21 @@
 
 - Python 3.8 oder höher
 - PostgreSQL 12 oder höher
+- FFmpeg
+- Redis
 
 ## Installation
 
 1. **PostgreSQL installieren:**
    - Folge den Anweisungen auf der offiziellen PostgreSQL-Website für dein Betriebssystem: [PostgreSQL Downloads](https://www.postgresql.org/download/).
 
-2. **Repository klonen und Abhängigkeiten installieren:**
+2. **FFmpeg installieren:**
+   - Folge den Anweisungen auf der offiziellen FFmpeg-Website für dein Betriebssystem: [FFmpeg Downloads](https://ffmpeg.org/download.html).   
+
+3. **Redis installieren:**
+   - Folge den Anweisungen auf der offiziellen Redis-Website für dein Betriebssystem: Redis Downloads.  
+
+4. **Repository klonen und Abhängigkeiten installieren:**
    ```bash
    git clone <repository-url>
    cd <repository-name>
@@ -18,7 +26,7 @@
    source env/bin/activate  # Auf Windows: .\env\Scripts\activate
    pip install -r requirements.txt
 
-3. **Erstelle eine .env-Datei im Projektverzeichnis:**
+5. **Erstelle eine .env-Datei im Projektverzeichnis:**
    Im Hauptverzeichnis des Projekts, erstelle eine neue Datei namens .env.
    Füge die folgenden Datenbankkonfigurationsparameter zur .env-Datei hinzu:
    DB_KEY=<Production-Key>
@@ -28,7 +36,7 @@
    DB_HOST=<Server-Name>
    DB_PORT=<Port>
 
-4. **Aktualisiere settings.py wie folgt:**
+6. **Aktualisiere settings.py wie folgt:**
    DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -39,4 +47,51 @@
         'PORT': config('DB_PORT', cast=int),
     }
 }
-SECRET_KEY = config('DB_KEY'),
+
+SECRET_KEY = config('DB_KEY')
+
+CACHES = {    
+    "default": {        
+        "BACKEND": "django_redis.cache.RedisCache",        
+        "LOCATION": "redis://127.0.0.1:6379/1",        
+        "OPTIONS": {   
+            "PASSWORD": "foobared", # for example pw 
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"        
+        },        
+        "KEY_PREFIX": "Videoflix"    
+        }
+    }
+
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': 'foobared', # for example pw
+        'DEFAULT_TIMEOUT': 360,
+        # 'REDIS_CLIENT_KWARGS': {   
+        #     'ssl_cert_reqs': None,  
+        # },
+    },
+    }
+
+IMPORT_EXPORT_USE_TRANSACTIONS =  True
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/staticfiles')
+
+
+
+
+7. **Migrationen erstellen und anwenden:**
+   python manage.py makemigrations
+   python manage.py migrate
+
+8. **Statische Dateien sammeln:**
+   python manage.py collectstatic
+
+9. **RQ Worker starten:**
+   python manage.py rqworker default
+
+10. **Statische Dateien sammeln:**
+   python manage.py runserver
+   

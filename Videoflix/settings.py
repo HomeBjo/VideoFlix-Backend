@@ -72,7 +72,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'import_export',
 ]
-
+#Import-Export
 IMPORT_EXPORT_USE_TRANSACTIONS =  True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/staticfiles')

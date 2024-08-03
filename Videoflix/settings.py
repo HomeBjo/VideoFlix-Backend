@@ -251,7 +251,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('GMAIL_MAIL')
 EMAIL_HOST_PASSWORD = config('GMAIL_PW')
-# EMAIL_FILE_PATH = 'Videoflix/Users/templates/templates_activate_account.html'
 
 # 4h timer
 PASSWORD_RESET_TIMEOUT = 14400

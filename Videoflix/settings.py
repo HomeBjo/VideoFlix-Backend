@@ -187,7 +187,7 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache",        
         "LOCATION": "redis://127.0.0.1:6379/1",        
         "OPTIONS": {   
-            "PASSWORD": "foobared",  # nachtragen, wenn nötig - siehe config -> Redis      
+            "PASSWORD": config('REDIS_PW'),  # nachtragen, wenn nötig - siehe config -> Redis      
             "CLIENT_CLASS": "django_redis.client.DefaultClient"        
         },        
         "KEY_PREFIX": "Videoflix"    
@@ -203,7 +203,7 @@ RQ_QUEUES = {
         'HOST': 'localhost',
         'PORT': 6379,
         'DB': 0,
-        'PASSWORD': 'foobared', 
+        'PASSWORD': config('REDIS_PW'), 
         'DEFAULT_TIMEOUT': 360,
         # 'REDIS_CLIENT_KWARGS': {    # Eventual additional Redis connection arguments
         #     'ssl_cert_reqs': None,  # für auth bei redis

@@ -145,6 +145,7 @@ static
 
 #Video_App
 Video_App/tasks.py
+Video_App/signals.py
 
 
 #Videoflix

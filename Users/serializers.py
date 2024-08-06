@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from Users.models import CustomUser
 from Video_App.serializers import VideoSerializer
+from django.contrib.auth import get_user_model
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -22,3 +23,19 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
+class EmailAuthTokenSerializer(serializers.Serializer):
+    """
+        Serializes an email and password for authentication.
+    """
+    
+    email = serializers.EmailField()
+    password = serializers.CharField(style={'input_type': 'password'})
+
+    def validate(self, attrs):
+        print(attrs)
+        user = get_user_model().objects.filter(email=attrs['email']).first() # filtert den user raus
+        if user and user.check_password(attrs['password']) and user.is_active: # überprüft ob der user aktiv ist und das passwort stimmt
+            attrs['user'] = user # user wird in attrs gespeichert(siehe für atts den print)
+            return attrs
+        raise serializers.ValidationError('Invalid email or password.')

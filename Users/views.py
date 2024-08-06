@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth import logout
-from Users.serializers import UserSerializer
+from Users.serializers import EmailAuthTokenSerializer, UserSerializer
 from rest_framework import  viewsets
 from django.views.decorators.cache import cache_page
 from Videoflix.settings import CACHE_TTL
@@ -19,6 +19,9 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from django.contrib.auth import get_user_model
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework import permissions
+from rest_framework.decorators import api_view
 
 
 
@@ -50,7 +53,7 @@ def activate(request, uidb64, token):
 
         
 class RegisterViewSet(viewsets.ViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = (AllowAny,)
 
     def create(self, request):
         """
@@ -85,13 +88,14 @@ class RegisterViewSet(viewsets.ViewSet):
 
 
 class LoginViewSet(ObtainAuthToken, viewsets.ViewSet):
+    permission_classes = (AllowAny,)
     """
     Handle user login and return authentication token.
     """
-    @cache_page(CACHE_TTL)
+    # @api_view(['GET'])
+    # @cache_page(CACHE_TTL)
     def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,
-                                           context={'request': request})
+        serializer = EmailAuthTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
 

@@ -40,6 +40,8 @@ def activate(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
+        token, created = Token.objects.get_or_create(user=user)
+        print(f'New token created: {token.key}') 
         print(request,'user activated')
         return redirect('http://localhost:4200/video_site')
     else:

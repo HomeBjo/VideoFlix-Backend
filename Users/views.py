@@ -19,10 +19,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from rest_framework import permissions
-from rest_framework.decorators import api_view
-
+from django.core.cache import cache
+from django.utils.decorators import method_decorator
 
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
@@ -89,25 +87,61 @@ class RegisterViewSet(viewsets.ViewSet):
 
 class LoginViewSet(ObtainAuthToken, viewsets.ViewSet):
     permission_classes = (AllowAny,)
-    """
-    Handle user login and return authentication token.
-    """
-    # @api_view(['GET'])
-    # @cache_page(CACHE_TTL)
+
+    @method_decorator(cache_page(CACHE_TTL))
     def create(self, request, *args, **kwargs):
+        # Unique cache key based on request data
+        cache_key = f'login_{request.data.get("username")}_{request.data.get("password")}'
+        
+        # Try to get the response from the cache
+        cached_response = cache.get(cache_key)
+        if cached_response:
+            return Response(cached_response)
+        
         serializer = EmailAuthTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
 
         if not user.is_active:
-            return Response({'error': 'This account is not active. Please activate your account first.'}, status=status.HTTP_400_BAD_REQUEST)
+            response_data = {'error': 'This account is not active. Please activate your account first.'}
+            cache.set(cache_key, response_data, CACHE_TTL)
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
         token, created = Token.objects.get_or_create(user=user)
-        return Response({
+        response_data = {
             'token': token.key,
             'user_id': user.pk,
             'email': user.email
-        })
+        }
+        
+        # Save the rendered response data in the cache
+        cache.set(cache_key, response_data, CACHE_TTL)
+        
+        return Response(response_data)
+    
+    
+
+# ------------------ alter weg (klapp nicht)------------------    
+# class LoginViewSet(ObtainAuthToken, viewsets.ViewSet):
+#     permission_classes = (AllowAny,)
+#     """
+#     Handle user login and return authentication token.
+#     """
+#     # @cache_page(CACHE_TTL)
+#     def create(self, request, *args, **kwargs):
+#         serializer = EmailAuthTokenSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         user = serializer.validated_data['user']
+
+#         if not user.is_active:
+#             return Response({'error': 'This account is not active. Please activate your account first.'}, status=status.HTTP_400_BAD_REQUEST)
+
+#         token, created = Token.objects.get_or_create(user=user)
+#         return Response({
+#             'token': token.key,
+#             'user_id': user.pk,
+#             'email': user.email
+#         })
 
 
 class LogoutViewSet(viewsets.ViewSet):

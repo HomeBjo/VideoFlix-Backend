@@ -1,19 +1,76 @@
+
+import os
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from .models import Video, FavoriteVideo
 
+# class VideoSerializer(serializers.ModelSerializer):
+#     is_favorite = serializers.SerializerMethodField()
+#     class Meta:
+#         model = Video
+#         fields = '__all__'
+        
+        
+#     def get_is_favorite(self, obj):
+#         user = self.context['request'].user
+#         if user.is_authenticated:
+#             return FavoriteVideo.objects.filter(user=user, video=obj).exists()
+#         return False
+
+
 class VideoSerializer(serializers.ModelSerializer):
     is_favorite = serializers.SerializerMethodField()
+    video_folder = serializers.SerializerMethodField()
+    screenshot = serializers.SerializerMethodField()
+
     class Meta:
         model = Video
-        fields = '__all__'
-        
-        
+        fields = ['id', 'is_favorite', 'title', 'url', 'created_at', 'description', 'video_folder', 'screenshot', 'category']
+
     def get_is_favorite(self, obj):
         user = self.context['request'].user
         if user.is_authenticated:
             return FavoriteVideo.objects.filter(user=user, video=obj).exists()
         return False
+
+    def get_video_folder(self, obj):
+        if obj.video_file:
+            # Extrahiere den Ordnerpfad ohne den Dateinamen
+            video_folder = os.path.dirname(obj.video_file.url)
+            return video_folder.replace('/videos/videos/', '/videos/')  # Entferne das doppelte 'videos'
+        return None
+
+    def get_screenshot(self, obj):
+        if obj.video_file:
+            # Extrahiere den Dateinamen ohne die Erweiterung
+            base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
+            video_folder = self.get_video_folder(obj).replace('\\', '/')  # Stelle sicher, dass nur Forward Slashes verwendet werden
+            
+            # Setze den Screenshot-Pfad zusammen
+            screenshot_path = f"{video_folder}/{base_name}_screenshot.png"
+            print(f"Screenshot path: {screenshot_path}")  # Debug-Ausgabe
+            
+            # Erstelle den vollständigen Screenshot-Pfad
+            full_screenshot_path = os.path.join(obj.video_file.storage.location, screenshot_path.lstrip('/')).replace('\\', '/')
+            
+            # Entferne doppeltes 'media' im full_screenshot_path
+            full_screenshot_path = full_screenshot_path.replace('/media/media', '/media', 1)
+    
+            print(f"Full screenshot path: {full_screenshot_path}")  # Debug-Ausgabe
+            
+            if os.path.exists(full_screenshot_path):
+                return screenshot_path
+    
+        return None
+
+
+       
+    
+    
+    
+    
+    
+    
     
     
 class FavoriteVideoSerializer(serializers.Serializer):

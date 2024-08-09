@@ -19,7 +19,7 @@ class VideoSerializer(serializers.ModelSerializer):
         if user.is_authenticated:
             return FavoriteVideo.objects.filter(user=user, video=obj).exists()
         return False
-
+# also hier wird über serializer und dann das object mit den pfad über eine get anfrage wieder gegeben
     def get_video_folder(self, obj):
       if obj.video_file:
         video_folder = os.path.dirname(obj.video_file.url)

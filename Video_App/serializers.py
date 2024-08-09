@@ -51,7 +51,8 @@ class VideoSerializer(serializers.ModelSerializer):
         if obj.video_file:
             # Extrahiere den Dateinamen ohne die Erweiterung
             base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
-            video_folder = self.get_video_folder(obj).replace('\\', '/')  # Stelle sicher, dass nur Forward Slashes verwendet werden'
+            video_folder = self.get_video_folder(obj).replace('\\', '/').replace(f'/{base_name}/{base_name}', f'/{base_name}', 1)  # Stelle sicher, dass nur Forward Slashes verwendet werden'
+            print(f"Video folder222: {video_folder}")
             # Setze den Screenshot-Pfad zusammen
             screenshot_path = f"{video_folder}/{base_name}_screenshot.png"
             print(f"Screenshot path: {screenshot_path}")  # Debug-Ausgabe

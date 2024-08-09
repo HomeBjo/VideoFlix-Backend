@@ -64,7 +64,7 @@ class VideoSerializer(serializers.ModelSerializer):
     
             print(f"Full screenshot path: {full_screenshot_path}")  # Debug-Ausgabe
             
-            if os.path.exists(full_screenshot_path):
+            if screenshot_path:
                 return screenshot_path
     
         return None

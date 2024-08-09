@@ -42,9 +42,9 @@ class VideoSerializer(serializers.ModelSerializer):
         base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
         
         # Kombiniere den Pfad, um den spezifischen Ordner mit dem Videonamen zu erstellen
-        video_folder = os.path.join(video_folder, base_name)
-        
-        return video_folder.replace('/videos/videos/', '/videos/')  # Entferne das doppelte 'videos'
+        video_folder = os.path.join(video_folder, base_name).replace(f'/{base_name}/{base_name}', f'/{base_name}', 1).replace('\\', '/')
+        print(f"Video folder: {video_folder}")
+        return video_folder.replace('/videos/videos/', '/videos/')
       return None
 
     def get_screenshot(self, obj):
@@ -60,7 +60,7 @@ class VideoSerializer(serializers.ModelSerializer):
             full_screenshot_path = os.path.join(obj.video_file.storage.location, screenshot_path.lstrip('/')).replace('\\', '/')
             
             # Entferne doppeltes 'media' im full_screenshot_path
-            full_screenshot_path = full_screenshot_path.replace('/media/media', '/media', 1)
+            full_screenshot_path = full_screenshot_path.replace('/media/media', '/media', 1).replace(f'/{base_name}/{base_name}', f'/{base_name}', 1)
     
             print(f"Full screenshot path: {full_screenshot_path}")  # Debug-Ausgabe
             

@@ -21,6 +21,8 @@ from django.core.mail import EmailMessage
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.utils.decorators import method_decorator
+from django.contrib.auth.views import PasswordResetView
+from .forms import CustomPasswordResetForm
 
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
@@ -114,3 +116,10 @@ class LogoutViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs):
         logout(request)
         return Response({'message': 'Logout successful'})
+    
+
+class CustomPasswordResetView(PasswordResetView):
+    form_class = CustomPasswordResetForm
+    
+
+    

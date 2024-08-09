@@ -34,18 +34,24 @@ class VideoSerializer(serializers.ModelSerializer):
         return False
 
     def get_video_folder(self, obj):
-        if obj.video_file:
-            # Extrahiere den Ordnerpfad ohne den Dateinamen
-            video_folder = os.path.dirname(obj.video_file.url)
-            return video_folder.replace('/videos/videos/', '/videos/')  # Entferne das doppelte 'videos'
-        return None
+      if obj.video_file:
+        # Extrahiere den Ordnerpfad ohne den Dateinamen
+        video_folder = os.path.dirname(obj.video_file.url)
+    
+        # Extrahiere den Basename der Videodatei ohne Erweiterung
+        base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
+        
+        # Kombiniere den Pfad, um den spezifischen Ordner mit dem Videonamen zu erstellen
+        video_folder = os.path.join(video_folder, base_name)
+        
+        return video_folder.replace('/videos/videos/', '/videos/')  # Entferne das doppelte 'videos'
+      return None
 
     def get_screenshot(self, obj):
         if obj.video_file:
             # Extrahiere den Dateinamen ohne die Erweiterung
             base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
-            video_folder = self.get_video_folder(obj).replace('\\', '/')  # Stelle sicher, dass nur Forward Slashes verwendet werden
-            
+            video_folder = self.get_video_folder(obj).replace('\\', '/')  # Stelle sicher, dass nur Forward Slashes verwendet werden'
             # Setze den Screenshot-Pfad zusammen
             screenshot_path = f"{video_folder}/{base_name}_screenshot.png"
             print(f"Screenshot path: {screenshot_path}")  # Debug-Ausgabe

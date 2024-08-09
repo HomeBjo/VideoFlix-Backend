@@ -26,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class EmailAuthTokenSerializer(serializers.Serializer):
     """
-        Serializes an email and password for authentication.
+        Serializes an email and password for authentication. '' das ist anstatt user login  das wir email mit nehmen als login parameter''
     """
     
     email = serializers.EmailField()

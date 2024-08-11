@@ -1,0 +1,214 @@
+/* syne-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Syne";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./Video_App/templates/assets/fonts/syne-v22-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* syne-500 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Syne";
+    font-style: normal;
+    font-weight: 500;
+    src: url("./Video_App/templates/assets/fonts/syne-v22-latin-500.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* syne-600 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Syne";
+    font-style: normal;
+    font-weight: 600;
+    src: url("./Video_App/templates/assets/fonts/syne-v22-latin-600.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* syne-700 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Syne";
+    font-style: normal;
+    font-weight: 700;
+    src: url("./Video_App/templates/assets/fonts/syne-v22-latin-700.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* syne-800 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Syne";
+    font-style: normal;
+    font-weight: 800;
+    src: url("./Video_App/templates/assets/fonts/syne-v22-latin-800.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* syne-tactile-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Syne Tactile";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./Video_App/templates/assets/fonts/syne-tactile-v15-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* tajawal-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Tajawal";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./Video_App/templates/assets/fonts/tajawal-v9-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* tajawal-500 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Tajawal";
+    font-style: normal;
+    font-weight: 500;
+    src: url("./Video_App/templates/assets/fonts/tajawal-v9-latin-500.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* tajawal-700 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Tajawal";
+    font-style: normal;
+    font-weight: 700;
+    src: url("./Video_App/templates/assets/fonts/tajawal-v9-latin-700.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* tajawal-800 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Tajawal";
+    font-style: normal;
+    font-weight: 800;
+    src: url("./Video_App/templates/assets/fonts/tajawal-v9-latin-800.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* tajawal-900 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Tajawal";
+    font-style: normal;
+    font-weight: 900;
+    src: url("./Video_App/templates/assets/fonts/tajawal-v9-latin-900.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* timmana-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Timmana";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./Video_App/templates/assets/fonts/timmana-v12-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* trispace-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Trispace";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./templates/assets/fonts/trispace-v24-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* trispace-500 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Trispace";
+    font-style: normal;
+    font-weight: 500;
+    src: url("./Video_App/templates/assets/fonts/trispace-v24-latin-500.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* trispace-600 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Trispace";
+    font-style: normal;
+    font-weight: 600;
+    src: url("./Video_App/templates/assets/fonts/trispace-v24-latin-600.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* trispace-700 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Trispace";
+    font-style: normal;
+    font-weight: 700;
+    src: url("./Video_App/templates/assets/fonts/trispace-v24-latin-700.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* trispace-800 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Trispace";
+    font-style: normal;
+    font-weight: 800;
+    src: url("./Video_App/templates/assets/fonts/trispace-v24-latin-800.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* fjalla-one-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Fjalla One";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./templates/assets/fonts/fjalla-one-v15-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* faster-one-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Faster One";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./templates/assets/fonts/faster-one-v19-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* erica-one-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Erica One";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./templates/assets/fonts/erica-one-v27-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* emblema-one-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Emblema One";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./templates/assets/fonts/emblema-one-v21-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* days-one-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Days One";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./Video_App/templates/assets/fonts/days-one-v18-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* chango-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Chango";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./Video_App/templates/assets/fonts/chango-v27-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}

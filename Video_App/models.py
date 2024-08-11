@@ -15,8 +15,7 @@ class Video(models.Model):
     
     def __str__(self):
         video_file_name = self.video_file.name if self.video_file else "Keine Videodatei"
-        screenshot_name = self.screenshot.name if self.screenshot else "Kein Screenshot"
-        return f"title: {self.title} || video_data_name: {video_file_name} || screenshot_name: {screenshot_name}"
+        return f"title: {self.title} || video_data_name: {video_file_name}"
     
     
 class FavoriteVideo(models.Model):

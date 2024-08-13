@@ -1,5 +1,6 @@
 
 from django.shortcuts import redirect
+from django.urls import reverse_lazy
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -21,8 +22,9 @@ from django.core.mail import EmailMessage
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.utils.decorators import method_decorator
-from django.contrib.auth.views import PasswordResetView
 from .forms import CustomPasswordResetForm
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
+
 
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
@@ -117,9 +119,22 @@ class LogoutViewSet(viewsets.ViewSet):
         logout(request)
         return Response({'message': 'Logout successful'})
     
-
 class CustomPasswordResetView(PasswordResetView):
-    form_class = CustomPasswordResetForm
+    form_class = CustomPasswordResetForm #zusätliche Validierungen möglich. hierdurch wird die standart email send angepasst!
+    template_name = 'password_reset.html'
+    email_template_name = 'password_reset_email.html'
+    success_url = reverse_lazy('password_reset_done') 
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'password_reset_done.html'
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'password_reset_confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'password_reset_complete.html'
+    
     
 
     

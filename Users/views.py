@@ -27,6 +27,7 @@ from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, 
 
 
 
+
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 # @cache_page(CACHE_TTL)   ----- den decorator bei der nötigen function ergänzen
 
@@ -136,5 +137,13 @@ class CustomPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'password_reset_complete.html'
     
     
+class CheckEmailView(viewsets.ViewSet):
+    permission_classes = (AllowAny,)
 
+    def create(self, request):
+        email = request.data.get('email')
+        CustomUser = get_user_model()
+        if CustomUser.objects.filter(email=email).exists():
+            return Response({'exists': True}, status=status.HTTP_200_OK)
+        return Response({'exists': False}, status=status.HTTP_200_OK)
     

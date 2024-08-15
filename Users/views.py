@@ -120,7 +120,7 @@ class LogoutViewSet(viewsets.ViewSet):
         logout(request)
         return Response({'message': 'Logout successful'})
     
-@method_decorator(csrf_exempt, name='dispatch')
+
 class CustomPasswordResetView(PasswordResetView):
     form_class = CustomPasswordResetForm #zusätliche Validierungen möglich. hierdurch wird die standart email send angepasst!
     template_name = 'password_reset.html'
@@ -137,6 +137,14 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'password_reset_complete.html'
     
-    
+class CheckEmailView(viewsets.ViewSet):
+    permission_classes = (AllowAny,)
+
+    def create(self, request):
+        email = request.data.get('email')
+        CustomUser = get_user_model()
+        if CustomUser.objects.filter(email=email).exists():
+            return Response({'exists': True}, status=status.HTTP_200_OK)
+        return Response({'exists': False}, status=status.HTTP_200_OK)
 
     

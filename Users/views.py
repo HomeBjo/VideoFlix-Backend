@@ -1,4 +1,5 @@
 
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from rest_framework.permissions import AllowAny
@@ -23,8 +24,7 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.utils.decorators import method_decorator
 from .forms import CustomPasswordResetForm
-from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
-
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 
 
 
@@ -120,25 +120,23 @@ class LogoutViewSet(viewsets.ViewSet):
         logout(request)
         return Response({'message': 'Logout successful'})
     
+@method_decorator(csrf_exempt, name='dispatch')
 class CustomPasswordResetView(PasswordResetView):
     form_class = CustomPasswordResetForm #zusätliche Validierungen möglich. hierdurch wird die standart email send angepasst!
-   
+    template_name = 'password_reset.html'
+    email_template_name = 'password_reset_email.html'
+    success_url = reverse_lazy('password_reset_done') 
 
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'password_reset_done.html'
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'password_reset_confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'password_reset_complete.html'
+    
     
 
-
-    
-    
-class CheckEmailView(viewsets.ViewSet):
-    permission_classes = (AllowAny,)
-
-    def create(self, request):
-        email = request.data.get('email')
-        CustomUser = get_user_model()
-        if CustomUser.objects.filter(email=email).exists():
-            return Response({'exists': True}, status=status.HTTP_200_OK)
-        return Response({'exists': False}, status=status.HTTP_200_OK)
     

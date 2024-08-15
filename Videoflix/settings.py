@@ -78,6 +78,11 @@ IMPORT_EXPORT_USE_TRANSACTIONS =  True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/staticfiles')
 
+#css datein finden
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
 # fileUpload
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'

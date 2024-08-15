@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth import logout
-from Users.serializers import EmailAuthTokenSerializer, UserSerializer
+from Users.serializers import EmailAuthTokenSerializer, PasswordResetSerializer, UserSerializer
 from rest_framework import  viewsets
 from django.views.decorators.cache import cache_page
 from Videoflix.settings import CACHE_TTL
@@ -24,7 +24,10 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.utils.decorators import method_decorator
 from .forms import CustomPasswordResetForm
-from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
+from django.contrib.auth.views import  PasswordResetConfirmView
+from rest_framework.views import APIView
+from django.contrib.auth.views import PasswordResetView
+
 
 
 
@@ -121,22 +124,58 @@ class LogoutViewSet(viewsets.ViewSet):
         return Response({'message': 'Logout successful'})
     
 
-class CustomPasswordResetView(PasswordResetView):
-    form_class = CustomPasswordResetForm #zusätliche Validierungen möglich. hierdurch wird die standart email send angepasst!
-    template_name = 'password_reset.html'
-    email_template_name = 'password_reset_email.html'
-    success_url = reverse_lazy('password_reset_done') 
+class PasswordResetAPIView(APIView):
+    permission_classes = (AllowAny,)
 
-class CustomPasswordResetDoneView(PasswordResetDoneView):
-    template_name = 'password_reset_done.html'
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            CustomUser = get_user_model()
+
+            try:
+                user = CustomUser.objects.get(email=email)
+                current_site = get_current_site(request)
+                mail_subject = 'Reset your password.'
+                message = render_to_string('password_reset_email.html', {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token': account_activation_token.make_token(user),
+                    'protocol': 'http'
+                })
+                email = EmailMessage(mail_subject, message, to=[user.email])
+                email.content_subtype = "html"
+                email.send()
+
+                return Response({"message": "Password reset link sent."}, status=status.HTTP_200_OK)
+            except CustomUser.DoesNotExist:
+                # Dieser Fehler sollte jetzt nicht mehr auftreten, da der Serializer das prüft
+                return Response({"error": "User with this email does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class CustomPasswordResetView(PasswordResetView):
+#     form_class = CustomPasswordResetForm #zusätliche Validierungen möglich. hierdurch wird die standart email send angepasst!
+   
+#     email_template_name = 'password_reset_email.html'
+ 
+
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'password_reset_confirm.html'
-    success_url = reverse_lazy('password_reset_complete')
-
-class CustomPasswordResetCompleteView(PasswordResetCompleteView):
-    template_name = 'password_reset_complete.html'
     
+
+    def form_valid(self, form):
+        user = form.save()
+        if user:
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+ 
+class PasswordResetCompleteView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response({"message": "Password reset complete. You can now log in with your new password."}, status=status.HTTP_200_OK)
+
 class CheckEmailView(viewsets.ViewSet):
     permission_classes = (AllowAny,)
 

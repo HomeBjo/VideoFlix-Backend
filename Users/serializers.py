@@ -38,3 +38,13 @@ class EmailAuthTokenSerializer(serializers.Serializer):
             attrs['user'] = user # user wird in attrs gespeichert(siehe für atts den print)
             return attrs
         raise serializers.ValidationError('Invalid email or password.')
+    
+    
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        CustomUser = get_user_model()
+        if not CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("User with this email does not exist.")
+        return value

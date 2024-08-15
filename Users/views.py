@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth import logout
-from Users.serializers import EmailAuthTokenSerializer, PasswordResetSerializer, UserSerializer
+from Users.serializers import EmailAuthTokenSerializer, PasswordChangeSerializer, UserSerializer
 from rest_framework import  viewsets
 from django.views.decorators.cache import cache_page
 from Videoflix.settings import CACHE_TTL
@@ -128,7 +128,7 @@ class PasswordResetAPIView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
-        serializer = PasswordResetSerializer(data=request.data)
+        serializer = PasswordChangeSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
             CustomUser = get_user_model()
@@ -163,14 +163,15 @@ class PasswordResetAPIView(APIView):
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'password_reset_confirm.html'
-    
 
     def form_valid(self, form):
-        user = form.save()
-        if user:
+        password_change_serializer = PasswordChangeSerializer(data=self.request.POST)
+        if password_change_serializer.is_valid():
+            password_change_serializer.save(user=form.user)
             return super().form_valid(form)
         else:
             return self.form_invalid(form)
+
  
 class PasswordResetCompleteView(APIView):
     def get(self, request, *args, **kwargs):

@@ -30,8 +30,7 @@ class CustomUser(AbstractUser):
 
     # Setze den Benutzernamen als nicht erforderlich
     username = models.CharField(max_length=150, blank=True, null=True)  # optional
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    objects = CustomUserManager()  # Verwende den benutzerdefinierten Manager
+    objects = CustomUserManager()  # Verwende den benutzerdefinierten Manager / und das email link benutzt werden kann

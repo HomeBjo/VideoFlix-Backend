@@ -146,6 +146,7 @@ class PasswordResetAPIView(APIView):
         serializer.save()
         return Response({"detail": "Password reset e-mail has been sent."}, status=status.HTTP_200_OK)
 
+User = get_user_model()
 class PasswordResetConfirmAPIView(APIView):
     def post(self, request, *args, **kwargs):
         uidb64 = kwargs.get('uidb64')

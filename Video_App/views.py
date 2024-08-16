@@ -6,14 +6,14 @@ from .models import Video
 from .serializers import VideoSerializer, FavoriteVideoSerializer
 from django.shortcuts import render
 import redis
-from rq import Queue
 from rq.job import Job
 from rest_framework.authentication import TokenAuthentication
 
 
 
 class VideoViewSet(viewsets.ModelViewSet):
-    permission_classes = [TokenAuthentication]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
 

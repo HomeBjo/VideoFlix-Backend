@@ -2,6 +2,7 @@ from rest_framework import serializers
 from Users.models import CustomUser
 from Video_App.serializers import VideoSerializer
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -44,7 +45,29 @@ class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate_email(self, value):
-        CustomUser = get_user_model()
-        if not CustomUser.objects.filter(email=value).exists():
-            raise serializers.ValidationError("User with this email does not exist.")
+        # Custom validation if needed
         return value
+
+    def save(self):
+        request = self.context.get('request')
+        password_reset_form = PasswordResetForm(data=self.validated_data)
+        if password_reset_form.is_valid():
+            password_reset_form.save(
+                request=request,
+                use_https=request.is_secure(),
+                from_email=None,
+                email_template_name='registration/password_reset_email.html'
+            )
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    new_password1 = serializers.CharField()
+    new_password2 = serializers.CharField()
+
+    def validate(self, attrs):
+        if attrs['new_password1'] != attrs['new_password2']:
+            raise serializers.ValidationError("Passwords do not match")
+        return attrs
+
+    def save(self, user):
+        user.set_password(self.validated_data['new_password1'])
+        user.save()

@@ -59,6 +59,7 @@ AUTH_USER_MODEL = 'Users.CustomUser'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'django.contrib.sites',  # evt hat das gefehlt---
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

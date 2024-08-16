@@ -8,14 +8,21 @@ from django.shortcuts import render
 import redis
 from rq import Queue
 from rq.job import Job
+from rest_framework.authentication import TokenAuthentication
 
 
 
 class VideoViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [TokenAuthentication]
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
 
+    @action(detail=False, methods=['get'])
+    def get_videos(self, request):
+        videos = Video.objects.all() 
+        serializer = VideoSerializer(videos, many=True, context={'request': request})
+        return Response(serializer.data)
+    
     @action(detail=False, methods=['get'])
     def favorites(self, request):
         user = request.user

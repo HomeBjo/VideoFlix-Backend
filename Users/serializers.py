@@ -40,16 +40,11 @@ class EmailAuthTokenSerializer(serializers.Serializer):
         raise serializers.ValidationError('Invalid email or password.')
     
     
-class PasswordChangeSerializer(serializers.Serializer):
-    new_password1 = serializers.CharField(write_only=True)
-    new_password2 = serializers.CharField(write_only=True)
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
 
-    def validate(self, data):
-        if data['new_password1'] != data['new_password2']:
-            raise serializers.ValidationError("Passwords do not match.")
-        return data
-
-    def save(self, user):
-        user.set_password(self.validated_data['new_password1'])
-        user.save()
-        return user
+    def validate_email(self, value):
+        CustomUser = get_user_model()
+        if not CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("User with this email does not exist.")
+        return value

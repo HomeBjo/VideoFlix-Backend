@@ -1,4 +1,5 @@
 
+from pyexpat.errors import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -8,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth import logout
-from Users.serializers import EmailAuthTokenSerializer, PasswordChangeSerializer, UserSerializer
+from Users.serializers import EmailAuthTokenSerializer, PasswordResetSerializer, UserSerializer
 from rest_framework import  viewsets
 from django.views.decorators.cache import cache_page
 from Videoflix.settings import CACHE_TTL
@@ -23,10 +24,16 @@ from django.core.mail import EmailMessage
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.utils.decorators import method_decorator
-from .forms import CustomPasswordResetForm
+
 from django.contrib.auth.views import  PasswordResetConfirmView
 from rest_framework.views import APIView
 from django.contrib.auth.views import PasswordResetView
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth import get_user_model
+from django.utils.http import urlsafe_base64_decode
+from django.shortcuts import render, redirect
+from django.contrib import messages
 
 
 
@@ -128,7 +135,7 @@ class PasswordResetAPIView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
-        serializer = PasswordChangeSerializer(data=request.data)
+        serializer = PasswordResetSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
             CustomUser = get_user_model()
@@ -136,46 +143,86 @@ class PasswordResetAPIView(APIView):
             try:
                 user = CustomUser.objects.get(email=email)
                 current_site = get_current_site(request)
+                uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+                token = account_activation_token.make_token(user)
+
+                # Debug-Ausgaben
+                print(f"Email: {email}")
+                print(f"User ID: {user.pk}")
+                print(f"UIDB64: {uidb64}")
+                print(f"Token: {token}")
+                print(f"Domain: {current_site.domain}")
+
                 mail_subject = 'Reset your password.'
                 message = render_to_string('password_reset_email.html', {
                     'user': user,
                     'domain': current_site.domain,
-                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                    'token': account_activation_token.make_token(user),
+                    'uid': uidb64,
+                    'token': token,
                     'protocol': 'http'
                 })
-                email = EmailMessage(mail_subject, message, to=[user.email])
-                email.content_subtype = "html"
-                email.send()
+                email_message = EmailMessage(mail_subject, message, to=[user.email])
+                email_message.content_subtype = "html"
+                email_message.send()
 
-                return Response({"message": "Password reset link sent."}, status=status.HTTP_200_OK)
+                # Rückgabe der wichtigen Daten als Teil der JSON-Antwort
+                return Response({
+                    "message": "Password reset link sent.",
+                    "email": email,
+                    "user_id": user.pk,
+                    "uidb64": uidb64,
+                    "token": token,
+                    "domain": current_site.domain
+                }, status=status.HTTP_200_OK)
             except CustomUser.DoesNotExist:
-                # Dieser Fehler sollte jetzt nicht mehr auftreten, da der Serializer das prüft
                 return Response({"error": "User with this email does not exist."}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# class CustomPasswordResetView(PasswordResetView):
-#     form_class = CustomPasswordResetForm #zusätliche Validierungen möglich. hierdurch wird die standart email send angepasst!
-   
-#     email_template_name = 'password_reset_email.html'
+
  
 
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'password_reset_confirm.html'
 
-    def form_valid(self, form):
-        password_change_serializer = PasswordChangeSerializer(data=self.request.POST)
-        if password_change_serializer.is_valid():
-            password_change_serializer.save(user=form.user)
-            return super().form_valid(form)
-        else:
-            return self.form_invalid(form)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['uidb64'] = self.kwargs.get('uidb64')
+        context['token'] = self.kwargs.get('token')
+        print(f"UIDB64 im Template: {context['uidb64']}")
+        print(f"Token im Template: {context['token']}")
+        return context
 
- 
-class PasswordResetCompleteView(APIView):
-    def get(self, request, *args, **kwargs):
-        return Response({"message": "Password reset complete. You can now log in with your new password."}, status=status.HTTP_200_OK)
+    def post(self, request, *args, **kwargs):
+        print('post aufgerufen')
+        uidb64 = self.kwargs.get('uidb64')
+        token = self.kwargs.get('token')
+        UserModel = get_user_model()
+
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = UserModel.objects.get(pk=uid)
+            print(f'Benutzer gefunden: {user}')
+        except (TypeError, ValueError, OverflowError, UserModel.DoesNotExist):
+            user = None
+            print('Benutzer nicht gefunden oder ungültig')
+
+        if user is not None and default_token_generator.check_token(user, token):
+            print('Token ist gültig')
+            form = SetPasswordForm(user, request.POST)
+            print('Form erstellt:', form)
+
+            if form.is_valid():
+                form.save()  # Passwort speichern
+                print('Passwort wurde erfolgreich geändert')
+                return JsonResponse({'message': 'Password has been successfully reset.'}, status=200)
+            else:
+                print('Formular ungültig:', form.errors)  # Debugging-Ausgabe bei ungültigem Formular
+                return JsonResponse({'errors': form.errors}, status=400)
+        else:
+            print('Ungültiger Token oder Benutzer')
+            return JsonResponse({'error': 'The reset link is invalid or has expired.'}, status=400)
+
 
 class CheckEmailView(viewsets.ViewSet):
     permission_classes = (AllowAny,)

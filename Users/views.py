@@ -29,12 +29,17 @@ from django.contrib.auth.views import  PasswordResetConfirmView
 from rest_framework.views import APIView
 from django.contrib.auth.views import PasswordResetView
 from django.contrib.auth.tokens import default_token_generator
+<<<<<<< Updated upstream
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth import get_user_model
 from django.utils.http import urlsafe_base64_decode
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
+=======
+from django.shortcuts import render, redirect
+from django.http import HttpResponseBadRequest
+>>>>>>> Stashed changes
 
 
 
@@ -182,9 +187,20 @@ class PasswordResetAPIView(APIView):
  
 
 
-class CustomPasswordResetConfirmView(PasswordResetConfirmView):
-    template_name = 'password_reset_confirm.html'
+# class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+#     template_name = 'password_reset_confirm.html'
+    
+#     def post(self, request, *args, **kwargs):
+#         print("POST-Anfrage empfangen")
+#         return super().post(request, *args, **kwargs)
+    
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['uidb64'] = self.kwargs['uidb64']
+#         context['token'] = self.kwargs['token']
+#         return context
 
+<<<<<<< Updated upstream
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['uidb64'] = self.kwargs.get('uidb64')
@@ -223,6 +239,114 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
             print('Ungültiger Token oder Benutzer')
             return JsonResponse({'error': 'The reset link is invalid or has expired.'}, status=400)
 
+=======
+#     def form_valid(self, form):
+#         print("Form valid method called")
+#         print("New password: ", form.cleaned_data['new_password1'])
+#         user = form.save(commit=False)  # Save the form without committing to the database yet
+#         user.set_password(form.cleaned_data['new_password1'])  # Set the new password
+#         user.save()  # Save the user with the updated password
+#         return super().form_valid(form)
+# def reset_password(request, uidb64, token):
+#     """
+#     Reset the password after verifying the user and the token.
+#     """
+#     CustomUser = get_user_model()
+#     try:
+#         uid = force_str(urlsafe_base64_decode(uidb64))
+#         user = CustomUser.objects.get(pk=uid)
+#         print(f'Trying to reset password for UID: {uid}, User: {user}')
+#     except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist) as e:
+#         print(f'Error decoding UID or fetching user: {str(e)}')
+#         user = None
+    
+#     if user is not None:
+#         # Überprüfen Sie, ob der Token gültig ist
+#         token_valid = default_token_generator.check_token(user, token)
+#         print('user and token:',user, token)
+#         print(f'Is the token valid?: {token_valid}')
+        
+#         if token_valid:
+#             if request.method == 'POST':
+#                 new_password1 = request.POST.get('new_password1')
+#                 new_password2 = request.POST.get('new_password2')
+                
+#                 if new_password1 and new_password2:
+#                     if new_password1 == new_password2:
+#                         user.set_password(new_password1)
+#                         user.save()
+#                         print('Password successfully reset.')
+#                         return redirect('http://localhost:4200/login')
+#                     else:
+#                         print('Passwords do not match.')
+#                         return HttpResponseBadRequest('Passwords do not match.')
+#                 else:
+#                     print('Password fields cannot be empty.')
+#                     return HttpResponseBadRequest('Password fields cannot be empty.')
+#             else:
+#                 print('Rendering password reset form.')
+#                 return render(request, 'password_reset_form.html', {'uidb64': uidb64, 'token': token})
+#         else:
+#             print(f'Invalid token for user {user}')
+#             return HttpResponseBadRequest('Invalid token or user does not exist.')
+#     else:
+#         print('User does not exist or UID is incorrect.')
+#         return HttpResponseBadRequest('Invalid token or user does not exist.')
+def reset_password(request, uidb64, token):
+    CustomUser = get_user_model()
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = CustomUser.objects.get(pk=uid)
+        print(f'Trying to reset password for UID: {uid}, User: {user}')
+    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist) as e:
+        print(f'Error decoding UID or fetching user: {str(e)}')
+        user = None
+    
+    if user is not None:
+        token = default_token_generator.make_token(user)
+        token_valid = default_token_generator.check_token(user, token)
+        print("Generated Token:", token)
+        print("Token valid:", token_valid)
+
+
+        print(f"Password hash: {user.password}")
+        print(f"Last login: {user.last_login}")
+
+        if token_valid:
+            if request.method == 'POST':
+                new_password1 = request.POST.get('new_password1')
+                new_password2 = request.POST.get('new_password2')
+                
+                if new_password1 and new_password2:
+                    if new_password1 == new_password2:
+                        user.set_password(new_password1)
+                        user.save()
+                        print('Password successfully reset.')
+                        return redirect('http://localhost:4200/login')
+                    else:
+                        print('Passwords do not match.')
+                        return HttpResponseBadRequest('Passwords do not match.')
+                else:
+                    print('Password fields cannot be empty.')
+                    return HttpResponseBadRequest('Password fields cannot be empty.')
+            else:
+                print('Rendering password reset form.')
+                return render(request, 'password_reset_confirm.html', {'uidb64': uidb64, 'token': token})
+        else:
+            print(f'Invalid token for user {user}')
+            return HttpResponseBadRequest('Invalid token or user does not exist.')
+    else:
+        print('User does not exist or UID is incorrect.')
+        return HttpResponseBadRequest('Invalid token or user does not exist.')
+
+
+
+
+    
+class PasswordResetCompleteView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response({"message": "Password reset complete. You can now log in with your new password."}, status=status.HTTP_200_OK)
+>>>>>>> Stashed changes
 
 class CheckEmailView(viewsets.ViewSet):
     permission_classes = (AllowAny,)

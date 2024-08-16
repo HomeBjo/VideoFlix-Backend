@@ -45,18 +45,23 @@ class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate_email(self, value):
-        # Custom validation if needed
+        # Optional: Hier kannst du benutzerdefinierte Validierungen hinzufügen
         return value
 
     def save(self):
         request = self.context.get('request')
+        frontend_url = "http://localhost:4200"  # Hier die URL deiner Angular-Anwendung
+        
         password_reset_form = PasswordResetForm(data=self.validated_data)
         if password_reset_form.is_valid():
+            # E-Mail versenden, wobei die benutzerdefinierte Vorlage verwendet wird
             password_reset_form.save(
                 request=request,
                 use_https=request.is_secure(),
                 from_email=None,
-                email_template_name='registration/password_reset_email.html'
+                # email_template_name='password_reset_email.html'    
+                html_email_template_name='password_reset_email.html',  #als html anzeigen damit das klappt
+                extra_email_context={'frontend_url': frontend_url}  # Hier übergeben wir die frontend_url
             )
 
 class PasswordResetConfirmSerializer(serializers.Serializer):

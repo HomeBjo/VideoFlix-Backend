@@ -115,6 +115,45 @@ class LoginViewSet(ObtainAuthToken, viewsets.ViewSet):
             'user_id': user.pk,
             'email': user.email
         })
+        
+
+class TokenVerificationViewSet(viewsets.ViewSet):
+    permission_classes = (AllowAny,)
+
+    def create(self, request, *args, **kwargs):
+        token_key = request.data.get('token')
+        user_id = request.data.get('user_id')
+
+        print(f"Received data: {request.data}")  # Debugging
+
+        if not token_key or not user_id:
+            return Response({'error': 'Token oder user_id fehlen.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token = Token.objects.get(key=token_key)
+            print('Token found:', token)
+            CustomUser = get_user_model()
+            user_id = int(user_id)
+            user = CustomUser.objects.get(pk=user_id)
+
+            print(f'Received token: {token_key}, user_id: {user_id}, user: {user}')
+            if token.user == user and user.is_active:
+                return Response({
+                    'token': token.key,
+                    'user_id': user.pk,
+                    'email': user.email
+                })
+
+            return Response({'error': 'Token und Benutzer stimmen nicht überein oder Benutzer ist nicht aktiv.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        except Token.DoesNotExist:
+            return Response({'error': 'Ungültiges Token.'}, status=status.HTTP_400_BAD_REQUEST)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'Benutzer existiert nicht.'}, status=status.HTTP_400_BAD_REQUEST)
+        except ValueError:
+            return Response({'error': 'Ungültige user_id.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class LogoutViewSet(viewsets.ViewSet):

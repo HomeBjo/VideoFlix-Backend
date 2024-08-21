@@ -32,7 +32,7 @@ class VideoSerializer(serializers.ModelSerializer):
     def get_screenshot(self, obj):
         if obj.video_file:
             base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
-            video_folder = self.get_video_folder(obj).replace('\\', '/').replace(f'/{base_name}/{base_name}', f'/{base_name}', 1)
+            video_folder = self.get_video_folder(obj).replace('\\', '/').replace('_master.m3u8', '').replace(f'/{base_name}/{base_name}', f'/{base_name}', 1)
             screenshot_path = f"{video_folder}/{base_name}_screenshot.png"
 
             if screenshot_path:

@@ -202,7 +202,7 @@ class PasswordResetConfirmAPIView(APIView):
 
 
 class UserDataViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,) #anfrage nur möglich, wenn user authentifiziert ist
     serializer_class = UserSerializer
 
     def get_queryset(self):

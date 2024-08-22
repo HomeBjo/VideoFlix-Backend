@@ -1,8 +1,5 @@
 
-from pyexpat.errors import messages
-from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -11,8 +8,6 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth import logout
 from Users.serializers import EmailAuthTokenSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer, UserSerializer
 from rest_framework import  viewsets
-from django.views.decorators.cache import cache_page
-from Videoflix.settings import CACHE_TTL
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from .tokens import account_activation_token
@@ -28,8 +23,8 @@ from django.contrib.auth import get_user_model
 from django.utils.http import urlsafe_base64_decode
 from django.shortcuts import  redirect
 from django.contrib.auth.models import User
-
-
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 
 
 
@@ -203,3 +198,38 @@ class PasswordResetConfirmAPIView(APIView):
             return Response({"detail": "Password has been reset."}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "Invalid token or user."}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+class UserDataViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        """
+        Diese Methode wird verwendet, um das queryset zu filtern,
+        sodass nur der Benutzer mit der angegebenen ID zurückgegeben wird.
+        """
+        user_id = self.request.query_params.get('userId')
+        User = get_user_model()
+
+        if user_id:
+            return User.objects.filter(pk=user_id)
+        return User.objects.none()  # Gibt ein leeres queryset zurück, wenn keine ID angegeben ist
+
+    @action(detail=False, methods=['get'], url_path='user-data')
+    def get_user_data(self, request):
+        """
+        Diese Methode wird verwendet, um die Benutzer-Daten zu holen.
+        """
+        user_id = request.query_params.get('userId')
+        print(f"user_id: {user_id}")
+
+        # Mit get_queryset() kannst du sicherstellen, dass das queryset korrekt gefiltert wird
+        queryset = self.get_queryset()
+
+        if not queryset.exists():
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.get_serializer(queryset.first())  # Nur den ersten Benutzer im queryset serialisieren
+        return Response(serializer.data, status=status.HTTP_200_OK)

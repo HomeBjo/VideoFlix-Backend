@@ -172,7 +172,7 @@ class CheckEmailView(viewsets.ViewSet):
 
     
 class PasswordResetAPIView(APIView):
-    
+    permission_classes = [AllowAny] #jeden erlauben eine anfrage per email zu senden weil nicht eingeloggt
     def post(self, request, *args, **kwargs):
         print('111111111', self)
         serializer = PasswordResetSerializer(data=request.data, context={'request': request})

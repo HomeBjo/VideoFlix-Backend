@@ -204,30 +204,22 @@ class PasswordResetConfirmAPIView(APIView):
 
 
 class UserDataViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,) #anfrage nur möglich, wenn user authentifiziert ist
+    permission_classes = (IsAuthenticated,)  # Anfrage nur möglich, wenn der Benutzer authentifiziert ist
     serializer_class = UserSerializer
 
     def get_queryset(self):
         """
         Diese Methode wird verwendet, um das queryset zu filtern,
-        sodass nur der Benutzer mit der angegebenen ID zurückgegeben wird.
+        sodass nur der authentifizierte Benutzer zurückgegeben wird.
         """
-        user_id = self.request.query_params.get('userId')
         User = get_user_model()
-
-        if user_id:
-            return User.objects.filter(pk=user_id)
-        return User.objects.none()  # Gibt ein leeres queryset zurück, wenn keine ID angegeben ist
+        return User.objects.filter(pk=self.request.user.pk)  # Nur den authentifizierten Benutzer zurückgeben
 
     @action(detail=False, methods=['get'], url_path='user-data')
     def get_user_data(self, request):
         """
-        Diese Methode wird verwendet, um die Benutzer-Daten zu holen.
+        Diese Methode wird verwendet, um die Benutzerdaten zu holen.
         """
-        user_id = request.query_params.get('userId')
-        print(f"user_id: {user_id}")
-
-        # Mit get_queryset() kannst du sicherstellen, dass das queryset korrekt gefiltert wird
         queryset = self.get_queryset()
 
         if not queryset.exists():

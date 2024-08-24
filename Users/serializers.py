@@ -22,8 +22,19 @@ class UserSerializer(serializers.ModelSerializer):
         user.is_active = False
         user.save()
         return user
+    
+    def update(self, instance, validated_data):
+        instance.username = validated_data.get("username", instance.username)
+        instance.email = validated_data.get("email", instance.email)
+        instance.first_name = validated_data.get("first_name", instance.first_name)
+        instance.last_name = validated_data.get("last_name", instance.last_name)
+        instance.phone = validated_data.get("phone", instance.phone)
+        instance.address = validated_data.get("address", instance.address)
 
+        instance.save()
+        return instance
 
+    
 class EmailAuthTokenSerializer(serializers.Serializer):
     """
         Serializes an email and password for authentication. '' das ist anstatt user login  das wir email mit nehmen als login parameter''

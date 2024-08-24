@@ -10,6 +10,8 @@ from Users.serializers import EmailAuthTokenSerializer, PasswordResetConfirmSeri
 from rest_framework import  viewsets
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
+
+from Users.models import CustomUser
 from .tokens import account_activation_token
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
@@ -233,3 +235,20 @@ class UserDataViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(queryset.first())  # Nur den ersten Benutzer im queryset serialisieren
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+    
+class UpdateUserDataViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', True)  # Set to True to allow partial updates
+        instance = self.get_object()
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+        return Response(serializer.data)

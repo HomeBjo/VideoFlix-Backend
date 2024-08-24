@@ -237,7 +237,6 @@ class UserDataViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     
-    
 class UpdateUserDataViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all()
@@ -246,6 +245,10 @@ class UpdateUserDataViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', True)  # Set to True to allow partial updates
         instance = self.get_object()
+
+        # Überprüfe, ob der authentifizierte Benutzer derselbe ist, dessen Daten geändert werden sollen
+        if instance.id != request.user.id:
+            return Response({'detail': 'You do not have permission to perform this action.'}, status=403)
 
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)

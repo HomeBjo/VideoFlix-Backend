@@ -21,22 +21,25 @@ class VideoSerializer(serializers.ModelSerializer):
         return False
 # also hier wird über serializer und dann das object mit den pfad über eine get anfrage wieder gegeben
     def get_video_folder(self, obj):
-      if obj.video_file:
-        video_folder = os.path.dirname(obj.video_file.url)
-        base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
-        video_folder = os.path.join(video_folder, base_name+'_master.m3u8').replace(f'/{base_name}/{base_name}', f'/{base_name}', 1).replace('\\', '/')
-        
-        return video_folder.replace('/videos/videos/', '/videos/')
-      return None
+        request = self.context.get('request')
+        if obj.video_file:
+            video_folder = os.path.dirname(obj.video_file.url)
+            base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
+            video_folder = os.path.join(video_folder, base_name+'_master.m3u8').replace(f'/{base_name}/{base_name}', f'/{base_name}', 1).replace('\\', '/')
+            
+            full_url = request.build_absolute_uri(video_folder.replace('/videos/videos/', '/videos/'))
+            return full_url
+        return None
 
     def get_screenshot(self, obj):
+        request = self.context.get('request')
         if obj.video_file:
             base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
-            video_folder = self.get_video_folder(obj).replace('\\', '/').replace('_master.m3u8', '').replace(f'/{base_name}/{base_name}', f'/{base_name}', 1)
+            video_folder = self.get_video_folder(obj).replace('_master.m3u8', '').replace(f'/{base_name}/{base_name}', f'/{base_name}', 1)
             screenshot_path = f"{video_folder}/{base_name}_screenshot.png"
 
-            if screenshot_path:
-                return screenshot_path
+            full_url = request.build_absolute_uri(screenshot_path)
+            return full_url
     
         return None
 

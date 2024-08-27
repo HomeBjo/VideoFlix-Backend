@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'django_rq',
     'debug_toolbar',
     'import_export',
+    'django_extensions',
 ]
 #Import-Export
 IMPORT_EXPORT_USE_TRANSACTIONS =  True

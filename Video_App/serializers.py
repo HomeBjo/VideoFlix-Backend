@@ -46,24 +46,21 @@ class VideoSerializer(serializers.ModelSerializer):
 
     
 class FavoriteVideoSerializer(serializers.Serializer):
-    fav_videos = serializers.ListField(
-        child=serializers.IntegerField()
-    )
+    fav_video = serializers.IntegerField()
 
     def update(self, instance, validated_data):
-        fav_videos = validated_data['fav_videos']
+        video_id = validated_data['fav_video']
         user = instance
 
         existing_favorites = set(FavoriteVideo.objects.filter(user=user).values_list('video_id', flat=True))
 
-        for video_id in fav_videos:
-            video = get_object_or_404(Video, id=video_id)
-            if video_id in existing_favorites:
-                FavoriteVideo.objects.filter(user=user, video=video).delete()
-                existing_favorites.remove(video_id)
-            else:
-                FavoriteVideo.objects.create(user=user, video=video)
-                existing_favorites.add(video_id)
+        video = get_object_or_404(Video, id=video_id)
+        if video_id in existing_favorites:
+            FavoriteVideo.objects.filter(user=user, video=video).delete()
+            existing_favorites.remove(video_id)
+        else:
+            FavoriteVideo.objects.create(user=user, video=video)
+            existing_favorites.add(video_id)
 
         return user
 

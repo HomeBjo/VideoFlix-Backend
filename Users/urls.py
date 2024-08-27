@@ -19,5 +19,4 @@ app_name = 'Users'
 
 urlpatterns = [
     path('', include(router.urls)),
-
 ]

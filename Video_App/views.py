@@ -43,7 +43,8 @@ class VideoViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @action(detail=False, methods=['post'])
-    def set_favorites(self, request):
+    def add_favorites(self, request):
+        print(request.headers.get('Authorization'))  # Füge dies hinzu
         user = request.user
         serializer = FavoriteVideoSerializer(data=request.data)
         if serializer.is_valid():

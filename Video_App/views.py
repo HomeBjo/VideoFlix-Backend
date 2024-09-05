@@ -1,3 +1,4 @@
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -9,13 +10,22 @@ import redis
 from rq.job import Job
 from rest_framework.authentication import TokenAuthentication
 
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.views.decorators.cache import cache_page
+from django.conf import settings
+
+
+
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 
 class VideoViewSet(viewsets.ModelViewSet):
+    
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
+    @cache_page(CACHE_TTL) 
 
 
     @action(detail=False, methods=['get'])

@@ -10,6 +10,7 @@ import redis
 from rq.job import Job
 from rest_framework.authentication import TokenAuthentication
 
+from django.utils.decorators import method_decorator
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.views.decorators.cache import cache_page
 from django.conf import settings
@@ -25,7 +26,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
-    @cache_page(CACHE_TTL) 
+    @method_decorator(cache_page(CACHE_TTL)) 
 
 
     @action(detail=False, methods=['get'])
@@ -33,8 +34,6 @@ class VideoViewSet(viewsets.ModelViewSet):
         videos = Video.objects.all() 
         serializer = VideoSerializer(videos, many=True, context={'request': request})
         return Response(serializer.data)
-    @cache_page(CACHE_TTL) 
-
     
     
     @action(detail=False, methods=['get'])

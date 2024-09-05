@@ -35,7 +35,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         serializer = VideoSerializer(videos, many=True, context={'request': request})
         return Response(serializer.data)
     
-    @method_decorator(cache_page(CACHE_TTL)) 
+    
     @action(detail=False, methods=['get'])
     def favorites(self, request):
         user = request.user

@@ -26,16 +26,16 @@ class VideoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
+    
+
     @method_decorator(cache_page(CACHE_TTL)) 
-
-
     @action(detail=False, methods=['get'])
     def get_videos(self, request):
         videos = Video.objects.all() 
         serializer = VideoSerializer(videos, many=True, context={'request': request})
         return Response(serializer.data)
     
-    
+    @method_decorator(cache_page(CACHE_TTL)) 
     @action(detail=False, methods=['get'])
     def favorites(self, request):
         user = request.user
@@ -43,21 +43,21 @@ class VideoViewSet(viewsets.ModelViewSet):
         serializer = VideoSerializer(favorite_videos, many=True, context={'request': request})
         return Response(serializer.data)
 
-
+    @method_decorator(cache_page(CACHE_TTL)) 
     @action(detail=False, methods=['get'])
     def top5(self, request):
         top5_videos = Video.objects.order_by('-created_at')[:5]
         serializer = VideoSerializer(top5_videos, many=True, context={'request': request})
         return Response(serializer.data)
 
-
+    @method_decorator(cache_page(CACHE_TTL)) 
     @action(detail=False, methods=['get'], url_path='category/(?P<category>[^/.]+)')
     def category_videos(self, request, category=None):
         category_videos = Video.objects.filter(category=category)
         serializer = VideoSerializer(category_videos, many=True, context={'request': request})
         return Response(serializer.data)
 
-
+    
     @action(detail=False, methods=['post'])
     def toggle_favorite(self, request):
         print(request.headers.get('Authorization'))  # Füge dies hinzu

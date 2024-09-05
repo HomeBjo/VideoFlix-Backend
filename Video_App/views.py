@@ -33,6 +33,8 @@ class VideoViewSet(viewsets.ModelViewSet):
         videos = Video.objects.all() 
         serializer = VideoSerializer(videos, many=True, context={'request': request})
         return Response(serializer.data)
+    @cache_page(CACHE_TTL) 
+
     
     
     @action(detail=False, methods=['get'])

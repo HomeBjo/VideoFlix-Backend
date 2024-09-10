@@ -59,7 +59,6 @@ AUTH_USER_MODEL = 'Users.CustomUser'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
-    # 'django.contrib.sites',  # evt hat das gefehlt---
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -80,10 +79,6 @@ IMPORT_EXPORT_USE_TRANSACTIONS =  True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/staticfiles')
 
-#css datein finden
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
 
 # fileUpload
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -169,11 +164,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-# static datein zb css
+# css folder found
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -199,7 +195,7 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache",        
         "LOCATION": "redis://127.0.0.1:6379/1",        
         "OPTIONS": {   
-            "PASSWORD": config('REDIS_PW'),  # nachtragen, wenn nötig - siehe config -> Redis      
+            "PASSWORD": config('REDIS_PW'),   
             "CLIENT_CLASS": "django_redis.client.DefaultClient"        
         },        
         "KEY_PREFIX": "Videoflix"    

@@ -5,7 +5,6 @@ from django.conf.urls.static import static
 from django.conf import settings
 from debug_toolbar.toolbar import debug_toolbar_urls
 from Users.views import PasswordResetAPIView, activate, PasswordResetConfirmAPIView
-from django.contrib.auth import views as auth_views
 
 
 

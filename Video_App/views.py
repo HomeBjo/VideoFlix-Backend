@@ -60,7 +60,6 @@ class VideoViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def toggle_favorite(self, request):
-        print(request.headers.get('Authorization'))  # Füge dies hinzu
         user = request.user
         serializer = FavoriteVideoSerializer(data=request.data)
         if serializer.is_valid():

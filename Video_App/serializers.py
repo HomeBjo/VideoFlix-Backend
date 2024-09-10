@@ -19,7 +19,7 @@ class VideoSerializer(serializers.ModelSerializer):
         if user.is_authenticated:
             return FavoriteVideo.objects.filter(user=user, video=obj).exists()
         return False
-# also hier wird über serializer und dann das object mit den pfad über eine get anfrage wieder gegeben
+
     def get_video_folder(self, obj):
         request = self.context.get('request')
         if obj.video_file:
@@ -44,7 +44,6 @@ class VideoSerializer(serializers.ModelSerializer):
         return None
 
 
-    
 class FavoriteVideoSerializer(serializers.Serializer):
     fav_video = serializers.IntegerField()
 

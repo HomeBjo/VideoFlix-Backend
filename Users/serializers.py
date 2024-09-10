@@ -45,9 +45,9 @@ class EmailAuthTokenSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         print(attrs)
-        user = get_user_model().objects.filter(email=attrs['email']).first() # filtert den user raus
-        if user and user.check_password(attrs['password']) and user.is_active: # überprüft ob der user aktiv ist und das passwort stimmt
-            attrs['user'] = user # user wird in attrs gespeichert(siehe für atts den print)
+        user = get_user_model().objects.filter(email=attrs['email']).first()
+        if user and user.check_password(attrs['password']) and user.is_active: 
+            attrs['user'] = user 
             return attrs
         raise serializers.ValidationError('Invalid email or password.')
     
@@ -56,23 +56,21 @@ class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate_email(self, value):
-        # Optional: Hier kannst du benutzerdefinierte Validierungen hinzufügen
         return value
 
     def save(self):
         request = self.context.get('request')
-        frontend_url = "http://localhost:4200"  # Hier die URL deiner Angular-Anwendung
+        frontend_url = "http://localhost:4200" 
         
         password_reset_form = PasswordResetForm(data=self.validated_data)
         if password_reset_form.is_valid():
-            # E-Mail versenden, wobei die benutzerdefinierte Vorlage verwendet wird
+           
             password_reset_form.save(
                 request=request,
                 use_https=request.is_secure(),
-                from_email=None,
-                # email_template_name='password_reset_email.html'    
-                html_email_template_name='password_reset_email.html',  #als html anzeigen damit das klappt
-                extra_email_context={'frontend_url': frontend_url}  # Hier übergeben wir die frontend_url
+                from_email=None,  
+                html_email_template_name='password_reset_email.html',  
+                extra_email_context={'frontend_url': frontend_url}
             )
 
 class PasswordResetConfirmSerializer(serializers.Serializer):

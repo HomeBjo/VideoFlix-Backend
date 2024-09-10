@@ -10,7 +10,6 @@ from Users.serializers import EmailAuthTokenSerializer, PasswordResetConfirmSeri
 from rest_framework import  viewsets
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
-
 from Users.models import CustomUser
 from .tokens import account_activation_token
 from django.template.loader import render_to_string
@@ -31,7 +30,6 @@ from rest_framework.decorators import action
 
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
-# @cache_page(CACHE_TTL)   ----- den decorator bei der nötigen function ergänzen
 
 def activate(request, uidb64, token):
     """
@@ -41,19 +39,14 @@ def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))  
         user = CustomUser.objects.get(pk=uid)
-        print(f'try get uid: {uid}')
-        print(f'try get user: {user}')
     except(TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
         user = None
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
         token, created = Token.objects.get_or_create(user=user)
-        print(f'New token created: {token.key}') 
-        print(request,'user activated')
         return redirect('http://localhost:4200/video_site')
     else:
-        print(request,'user not activated') 
         return redirect('http://localhost:4200/login')
 
         
@@ -78,7 +71,6 @@ class RegisterViewSet(viewsets.ViewSet):
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
                 'protocol': 'http'
-                # 'protocol': 'https' if request.is_secure() else 'http'
             })
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
@@ -121,19 +113,15 @@ class TokenVerificationViewSet(viewsets.ViewSet):
         token_key = request.data.get('token')
         user_id = request.data.get('user_id')
 
-        print(f"Received data: {request.data}")  # Debugging
-
         if not token_key or not user_id:
             return Response({'error': 'Token oder user_id fehlen.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             token = Token.objects.get(key=token_key)
-            print('Token found:', token)
             CustomUser = get_user_model()
             user_id = int(user_id)
             user = CustomUser.objects.get(pk=user_id)
 
-            print(f'Received token: {token_key}, user_id: {user_id}, user: {user}')
             if token.user == user and user.is_active:
                 return Response({
                     'token': token.key,
@@ -174,9 +162,8 @@ class CheckEmailView(viewsets.ViewSet):
 
     
 class PasswordResetAPIView(APIView):
-    permission_classes = [AllowAny] #jeden erlauben eine anfrage per email zu senden weil nicht eingeloggt
+    permission_classes = [AllowAny] 
     def post(self, request, *args, **kwargs):
-        print('111111111', self)
         serializer = PasswordResetSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -205,7 +192,7 @@ class PasswordResetConfirmAPIView(APIView):
 
 
 class UserDataViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)  # Anfrage nur möglich, wenn der Benutzer authentifiziert ist
+    permission_classes = (IsAuthenticated,) 
     serializer_class = UserSerializer
 
     def get_queryset(self):
@@ -214,7 +201,7 @@ class UserDataViewSet(viewsets.ModelViewSet):
         sodass nur der authentifizierte Benutzer zurückgegeben wird.
         """
         User = get_user_model()
-        return User.objects.filter(pk=self.request.user.pk)  # Nur den authentifizierten Benutzer zurückgeben
+        return User.objects.filter(pk=self.request.user.pk)
 
     @action(detail=False, methods=['get'], url_path='user-data')
     def get_user_data(self, request):
@@ -226,7 +213,7 @@ class UserDataViewSet(viewsets.ModelViewSet):
         if not queryset.exists():
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
         
-        serializer = self.get_serializer(queryset.first())  # Nur den ersten Benutzer im queryset serialisieren
+        serializer = self.get_serializer(queryset.first())
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     
@@ -236,10 +223,9 @@ class UpdateUserDataViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', True)  # Set to True to allow partial updates
+        partial = kwargs.pop('partial', True) 
         instance = self.get_object()
 
-        # Überprüfe, ob der authentifizierte Benutzer derselbe ist, dessen Daten geändert werden sollen
         if instance.id != request.user.id:
             return Response({'detail': 'You do not have permission to perform this action.'}, status=403)
 

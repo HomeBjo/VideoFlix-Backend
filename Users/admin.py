@@ -17,7 +17,6 @@ class CustomUserResource(resources.ModelResource):
 class CustomUserAdmin(ImportExportModelAdmin, UserAdmin):
     add_form = CustomUserCreationForm
     fieldsets = (
-        # *UserAdmin.fieldsets, # Admininterfaceanzeige unten
         (
             'Individuelle Daten',
             {
@@ -28,7 +27,7 @@ class CustomUserAdmin(ImportExportModelAdmin, UserAdmin):
                 )
             }
         ),
-        *UserAdmin.fieldsets # Admininterfaceanzeige oben
+        *UserAdmin.fieldsets 
     )
     resource_class = CustomUserResource
 

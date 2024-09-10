@@ -26,11 +26,10 @@ class CustomUser(AbstractUser):
     custom = models.CharField(max_length=500, default='')    
     address = models.CharField(max_length=150, default='')   
     phone = models.CharField(max_length=25, default='')
-    email = models.EmailField(unique=True)  # E-Mail muss eindeutig sein
+    email = models.EmailField(unique=True) 
 
-    # Setze den Benutzernamen als nicht erforderlich
-    username = models.CharField(max_length=150, blank=True, null=True)  # optional
+    username = models.CharField(max_length=150, blank=True, null=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    objects = CustomUserManager()  # Verwende den benutzerdefinierten Manager / und das email link benutzt werden kann
+    objects = CustomUserManager() 

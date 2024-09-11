@@ -51,11 +51,29 @@ def activate(request, uidb64, token):
 
         
 class RegisterViewSet(viewsets.ViewSet):
+    """
+    This ViewSet handles user registration.
+    
+    Permissions:
+    ------------
+    - AllowAny: Allows any user to access the registration functionality.
+    """
     permission_classes = (AllowAny,)
 
     def create(self, request):
         """
-        Handle user registration.
+        Handles user registration and sends an activation email.
+        
+        Process:
+        --------
+        - Validates the user data.
+        - Saves the user, but sets them as inactive initially.
+        - Sends an email with an activation link to confirm the account.
+        
+        Returns:
+        --------
+        - On success: A message instructing the user to confirm their email.
+        - On failure: Validation errors.
         """
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -88,9 +106,27 @@ class RegisterViewSet(viewsets.ViewSet):
 class LoginViewSet(ObtainAuthToken, viewsets.ViewSet):
     permission_classes = (AllowAny,)
     """
-    Handle user login and return authentication token.
+    Handles user login and returns an authentication token.
+    
+    Permissions:
+    ------------
+    - AllowAny: Allows any user to access the login functionality.
     """
     def create(self, request, *args, **kwargs):
+        """
+        Processes user login.
+        
+        Process:
+        --------
+        - Validates the user credentials.
+        - If the user is inactive, returns an error message.
+        - If login is successful, returns the user's token and profile information.
+        
+        Returns:
+        --------
+        - On success: The user's token, ID, and email.
+        - On failure: An error message indicating an inactive account or invalid credentials.
+        """
         serializer = EmailAuthTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
@@ -107,9 +143,29 @@ class LoginViewSet(ObtainAuthToken, viewsets.ViewSet):
         
 
 class TokenVerificationViewSet(viewsets.ViewSet):
+    """
+    Handles verification of authentication tokens.
+    
+    Permissions:
+    ------------
+    - AllowAny: Allows any user to verify their token.
+    """
     permission_classes = (AllowAny,)
 
     def create(self, request, *args, **kwargs):
+        """
+        Verifies a provided authentication token against the user.
+
+        Process:
+        --------
+        - Takes a token and user_id from the request.
+        - Validates that the token belongs to the user and the user is active.
+        
+        Returns:
+        --------
+        - On success: The user's token, ID, and email.
+        - On failure: An error message indicating an invalid token or user.
+        """
         token_key = request.data.get('token')
         user_id = request.data.get('user_id')
 
@@ -143,17 +199,47 @@ class TokenVerificationViewSet(viewsets.ViewSet):
 
 class LogoutViewSet(viewsets.ViewSet):
     """
-    Handle user logout.
+    Handles user logout.
+    
+    Permissions:
+    ------------
+    - No specific permission required; logs out the authenticated user.
     """
     def create(self, request, *args, **kwargs):
+        """
+        Logs out the user.
+        
+        Returns:
+        --------
+        - A success message confirming that the user has been logged out.
+        """
         logout(request)
         return Response({'message': 'Logout successful'})
     
 
 class CheckEmailView(viewsets.ViewSet):
+    """
+    Checks if an email is already registered in the system.
+    
+    Permissions:
+    ------------
+    - AllowAny: Allows any user to check if an email exists.
+    """
     permission_classes = (AllowAny,)
 
     def create(self, request):
+        """
+        Verifies if the provided email is already registered.
+
+        Process:
+        --------
+        - Takes the email from the request.
+        - Checks if a user with this email exists in the system.
+
+        Returns:
+        --------
+        - True if the email exists, False otherwise.
+        """
         email = request.data.get('email')
         CustomUser = get_user_model()
         if CustomUser.objects.filter(email=email).exists():
@@ -162,8 +248,27 @@ class CheckEmailView(viewsets.ViewSet):
 
     
 class PasswordResetAPIView(APIView):
+    """
+    Handles password reset requests.
+
+    Permissions:
+    ------------
+    - AllowAny: Allows any user to request a password reset.
+    """
     permission_classes = [AllowAny] 
     def post(self, request, *args, **kwargs):
+        """
+        Sends a password reset email to the user.
+        
+        Process:
+        --------
+        - Validates the user's request.
+        - Sends a password reset email if the validation is successful.
+
+        Returns:
+        --------
+        - A success message indicating that the email has been sent.
+        """
         serializer = PasswordResetSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -171,8 +276,28 @@ class PasswordResetAPIView(APIView):
 
 User = get_user_model()
 class PasswordResetConfirmAPIView(APIView):
+    """
+    Handles confirmation of password reset.
+
+    Permissions:
+    ------------
+    - AllowAny: Allows any user to confirm their password reset.
+    """
     permission_classes = [AllowAny] 
     def post(self, request, *args, **kwargs):
+        """
+        Confirms the password reset using a token and user ID.
+
+        Process:
+        --------
+        - Takes a token and user ID from the request.
+        - Verifies the validity of the token and resets the password if valid.
+
+        Returns:
+        --------
+        - A success message if the password has been reset.
+        - An error message if the token or user is invalid.
+        """
         uidb64 = kwargs.get('uidb64')
         token = kwargs.get('token')
         try:
@@ -192,13 +317,19 @@ class PasswordResetConfirmAPIView(APIView):
 
 
 class UserDataViewSet(viewsets.ModelViewSet):
+    """
+    Provides access to user data for authenticated users.
+
+    Permissions:
+    ------------
+    - IsAuthenticated: Only authenticated users can access this view.
+    """
     permission_classes = (IsAuthenticated,) 
     serializer_class = UserSerializer
 
     def get_queryset(self):
         """
-        Diese Methode wird verwendet, um das queryset zu filtern,
-        sodass nur der authentifizierte Benutzer zurückgegeben wird.
+        Filters the queryset to return only the authenticated user's data.
         """
         User = get_user_model()
         return User.objects.filter(pk=self.request.user.pk)
@@ -206,7 +337,12 @@ class UserDataViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='user-data')
     def get_user_data(self, request):
         """
-        Diese Methode wird verwendet, um die Benutzerdaten zu holen.
+        Fetches the authenticated user's data.
+
+        Returns:
+        --------
+        - The user's profile data if found.
+        - An error message if the user is not found.
         """
         queryset = self.get_queryset()
 
@@ -218,11 +354,31 @@ class UserDataViewSet(viewsets.ModelViewSet):
     
     
 class UpdateUserDataViewSet(viewsets.ModelViewSet):
+    """
+    Handles updates to the authenticated user's profile.
+
+    Permissions:
+    ------------
+    - IsAuthenticated: Only authenticated users can update their profile.
+    """
     permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
 
     def update(self, request, *args, **kwargs):
+        """
+        Updates the authenticated user's profile.
+
+        Process:
+        --------
+        - Validates that the user making the request is the profile owner.
+        - Partially updates the user's profile data.
+
+        Returns:
+        --------
+        - The updated user data on success.
+        - An error message if the user does not have permission to update the profile.
+        """
         partial = kwargs.pop('partial', True) 
         instance = self.get_object()
 

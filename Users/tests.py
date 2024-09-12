@@ -3,11 +3,6 @@ from django.test import RequestFactory, TestCase
 from Users.serializers import EmailAuthTokenSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer, UserSerializer
 from .models import CustomUser
 from django.contrib.auth.hashers import check_password
-from rest_framework.test import APITestCase
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.authtoken.models import Token
-
 
 #----------------------- User-Model Test -----------------------
 class CustomUserModelTests(TestCase):
@@ -196,47 +191,3 @@ class UserSerializerTest(TestCase):
         self.assertTrue(user.check_password('newpassword123'))
         
         
-# #----------------------- User-Viwes Test -----------------------
-
-# class UserRegistrationTest(APITestCase):
-#     def test_user_registration(self):
-#         url = reverse('Users:register-list')
-#         data = {
-#             'username': 'testuser',
-#             'email': 'testuser@example.com',
-#             'password': 'testpassword123',
-#         }
-        
-#         response = self.client.post(url, data, format='json')
-#         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-#         self.assertIn('token', response.data)
-#         self.assertEqual(response.data['user_id'], CustomUser.objects.get(username='testuser').id)
-#         self.assertEqual(response.data['email'], 'testuser@example.com')
-
-# class UserLoginTest(APITestCase):
-#     def setUp(self):
-#         self.user = CustomUser.objects.create_user(username='testuser', password='testpassword123')
-#         self.url = reverse('Users:login-list')
-        
-#     def test_user_login(self):
-#         data = {
-#             'username': 'testuser',
-#             'password': 'testpassword123',
-#         }
-#         response = self.client.post(self.url, data, format='json')
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertIn('token', response.data)
-#         self.assertEqual(response.data['user_id'], self.user.id)
-#         self.assertEqual(response.data['email'], self.user.email)
-
-# class UserLogoutTest(APITestCase):
-#     def setUp(self):
-#         self.user = CustomUser.objects.create_user(username='testuser', password='testpassword123')
-#         self.token = Token.objects.create(user=self.user)
-#         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-#         self.url = reverse('Users:logout-list')
-        
-#     def test_user_logout(self):
-#         response = self.client.post(self.url)
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(response.data['message'], 'Logout successful')

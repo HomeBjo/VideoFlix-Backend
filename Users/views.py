@@ -26,7 +26,7 @@ from django.shortcuts import  redirect
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-
+from rest_framework.exceptions import ValidationError
 
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
@@ -170,7 +170,7 @@ class TokenVerificationViewSet(viewsets.ViewSet):
         user_id = request.data.get('user_id')
 
         if not token_key or not user_id:
-            return Response({'error': 'Token oder user_id fehlen.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Missing Token or user_id.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             token = Token.objects.get(key=token_key)
@@ -185,15 +185,15 @@ class TokenVerificationViewSet(viewsets.ViewSet):
                     'email': user.email
                 })
 
-            return Response({'error': 'Token und Benutzer stimmen nicht überein oder Benutzer ist nicht aktiv.'},
+            return Response({'error': 'Token and user do not match or user is not active.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
         except Token.DoesNotExist:
-            return Response({'error': 'Ungültiges Token.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Invalid Token.'}, status=status.HTTP_400_BAD_REQUEST)
         except CustomUser.DoesNotExist:
-            return Response({'error': 'Benutzer existiert nicht.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'User does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
         except ValueError:
-            return Response({'error': 'Ungültige user_id.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Invalid user_id.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -241,6 +241,9 @@ class CheckEmailView(viewsets.ViewSet):
         - True if the email exists, False otherwise.
         """
         email = request.data.get('email')
+        if not email:
+            raise ValidationError({'error': 'Email is required.'})
+        
         CustomUser = get_user_model()
         if CustomUser.objects.filter(email=email).exists():
             return Response({'exists': True}, status=status.HTTP_200_OK)
@@ -345,7 +348,7 @@ class UserDataViewSet(viewsets.ModelViewSet):
         - An error message if the user is not found.
         """
         queryset = self.get_queryset()
-
+    
         if not queryset.exists():
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
         

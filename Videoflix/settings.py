@@ -262,3 +262,9 @@ EMAIL_HOST_PASSWORD = config('GMAIL_PW')
 
 # 4h timer
 PASSWORD_RESET_TIMEOUT = 14400
+
+
+# Define the relative path to the videos
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -98,15 +98,7 @@
 9. **Start RQ Worker:**
    python manage.py rqworker default
 
-   <!--
-   If you use Windows and the rq-winworker doesn't work for you, then try the following:
-   - Installiere ubunto und verknüpfe das mit windows. 
-   - Start in VSCode das projekt and a second wsl shell(bash/pwsh). 
-   - Now navigate to the project and install the env (now you have two env. One from windows and one from linux)
-   - Install your requirements(from requirements.txt)
-   - Start now your server via windows and the rq-worker via linux
-   The rq-worker should now run under windows. Also make sure that the connection to redis is established.
-   -->
+<!-- If you're using Windows and the `rq-winworker` doesn't work for you, try the following workaround: - Install Ubuntu via Windows Subsystem for Linux (WSL) and integrate it with Windows. - In VSCode, start the project and open a second WSL shell (bash/pwsh). - Navigate to the project directory in WSL and create a virtual environment (you will now have two environments: one for Windows and one for Linux). - Install the project dependencies in WSL using `requirements.txt`. - Start the Django server on Windows, and start the RQ worker in WSL. This setup allows the RQ worker to run on Linux, even if you're working in a Windows environment. Also, ensure that the connection to Redis is properly configured and established between the two environments. -->
 
 10. **Start the server:**
    python manage.py runserver

@@ -16,7 +16,7 @@ class VideoViewSetTest(APITestCase):
       
         self.video_file = SimpleUploadedFile("video1.mp4", b"file_content", content_type="video/mp4")
         
-       
+      
         self.video1 = Video.objects.create(title='Test Video 1', category='Music', video_file=self.video_file)
         self.video2 = Video.objects.create(title='Test Video 2', category='Movie', video_file=self.video_file)
         
@@ -24,7 +24,7 @@ class VideoViewSetTest(APITestCase):
         """
         Testet das Abrufen aller Videos.
         """
-        url = '/videos/get_videos/'  
+        url = '/videos/get_videos/'
         response = self.client.get(url)
         
         print(f"Anzahl der Videos in der Antwort: {len(response.data)}")
@@ -35,10 +35,8 @@ class VideoViewSetTest(APITestCase):
         """
         Testet das Favorisieren eines Videos.
         """
-        
         FavoriteVideo.objects.create(user=self.user, video=self.video1)
-        
-        url = '/videos/get_videos/favorites/' 
+        url = '/videos/get_videos/favorites/'  
         response = self.client.get(url)
         
         print(f"Anzahl der Videos in der Antwort: {len(response.data)}")
@@ -51,8 +49,7 @@ class VideoViewSetTest(APITestCase):
         Testet das Hinzufügen und Entfernen eines Videos zu den Favoriten.
         """
         url = '/videos/get_videos/toggle_favorite/'  
-        data = {'fav_video': self.video1.id} 
-        
+        data = {'fav_video': self.video1.id}  
         print(f"11111111",data )
     
       
@@ -62,7 +59,6 @@ class VideoViewSetTest(APITestCase):
         
         self.assertTrue(FavoriteVideo.objects.filter(user=self.user, video=self.video1).exists())
     
-       
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
@@ -80,6 +76,5 @@ class VideoViewSetTest(APITestCase):
         print(f"22222222 categroy '{self.video1.category}': {response.data}")
     
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-       
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['title'], self.video1.title)        

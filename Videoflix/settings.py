@@ -80,12 +80,6 @@ IMPORT_EXPORT_USE_TRANSACTIONS =  True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/staticfiles')
 
 
-# fileUpload
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
-
-
-
 MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'corsheaders.middleware.CorsMiddleware',

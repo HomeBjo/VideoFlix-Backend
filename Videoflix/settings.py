@@ -6,15 +6,28 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.0/howto/static-files/
+
+# css folder found
+STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+if DEBUG:
+   STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+else:
+    STATIC_ROOT = '/var/www/html/static'
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('DB_KEY'),
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
 
 # rest_framework Authentication
 ALLOWED_HOSTS = [
@@ -77,8 +90,6 @@ INSTALLED_APPS = [
 ]
 #Import-Export
 IMPORT_EXPORT_USE_TRANSACTIONS =  True
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 MIDDLEWARE = [
@@ -156,18 +167,6 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-# css folder found
-STATIC_URL = '/static/'
-if DEBUG:
-
-   STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
-else:
-    STATIC_ROOT = '/var/www/html/static'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

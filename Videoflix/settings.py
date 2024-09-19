@@ -14,12 +14,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('DB_KEY'),
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # rest_framework Authentication
 ALLOWED_HOSTS = [
     'localhost',
-    '127.0.0.1'
+    '127.0.0.1',
+    'gruppe49345.developerakademie.org'
 ]
 
 # Django Toolbar
@@ -77,7 +78,7 @@ INSTALLED_APPS = [
 #Import-Export
 IMPORT_EXPORT_USE_TRANSACTIONS =  True
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 MIDDLEWARE = [
@@ -159,11 +160,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 # css folder found
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [
+STATIC_URL = '/static/'
+if DEBUG:
+
+   STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
-
+else:
+    STATIC_ROOT = '/var/www/html/static'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -182,6 +186,7 @@ DATABASES = {
         'PORT': config('DB_PORT', cast=int),
     }
 }
+
 
 #Redis
 CACHES = {    

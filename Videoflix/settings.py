@@ -6,6 +6,14 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+
+
+
+
+
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
@@ -20,7 +28,36 @@ if DEBUG:
     os.path.join(BASE_DIR, 'static'),
 ]
 else:
-    STATIC_ROOT = 'www/html/static'
+    STATIC_ROOT = '/var/www/html/static'
+    
+    
+# Define the relative path to the videos
+MEDIA_URL = '/media/'
+
+if DEBUG:
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+else:
+    MEDIA_ROOT = '/var/www/html/media'
+    
+    
+    
+    
+    
+
+# Define the relative path to the videos
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+
+
+
+
+
+
+
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -65,6 +102,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:4200",
     "http://127.0.0.1:8000",
+    "gruppe49345.developerakademie.org",
 ]
 
 
@@ -261,8 +299,3 @@ EMAIL_HOST_PASSWORD = config('GMAIL_PW')
 # 4h timer
 PASSWORD_RESET_TIMEOUT = 14400
 
-
-# Define the relative path to the videos
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

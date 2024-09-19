@@ -20,7 +20,7 @@ if DEBUG:
     os.path.join(BASE_DIR, 'static'),
 ]
 else:
-    STATIC_ROOT = '/var/www/html/static'
+    STATIC_ROOT = 'www/html/static'
 
 
 # Quick-start development settings - unsuitable for production

@@ -76,9 +76,10 @@ class VideoSerializer(serializers.ModelSerializer):
         if obj.video_file:
             video_folder = os.path.dirname(obj.video_file.url)
             base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
-            video_folder = os.path.join(video_folder, base_name+'_master.m3u8').replace(f'/{base_name}/{base_name}', f'/{base_name}', 1).replace('\\', '/')
+            video_folder = os.path.join(video_folder, base_name + '_master.m3u8').replace('\\', '/')
             
             full_url = request.build_absolute_uri(video_folder.replace('/videos/videos/', '/videos/'))
+            print(f"Generated video folder URL: {full_url}")
             return full_url
         return None
 

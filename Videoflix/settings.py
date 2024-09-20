@@ -70,7 +70,8 @@ SECRET_KEY = config('DB_KEY'),
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'gruppe49345.developerakademie.org'
+    'gruppe49345.developerakademie.org',
+    'pino.xn--bjrnteneicken-jmb.de', 
 ]
 
 # Django Toolbar

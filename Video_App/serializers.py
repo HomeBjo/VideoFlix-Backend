@@ -100,9 +100,9 @@ class VideoSerializer(serializers.ModelSerializer):
             video_folder = os.path.dirname(obj.video_file.url)
             base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
 
-            screenshot_path = f"{video_folder}/{base_name}_screenshot.png"
+            screenshot_path = os.path.join(video_folder, f"{base_name}_screenshot.png").replace('\\', '/')
 
-            full_url = request.build_absolute_uri(screenshot_path)
+            full_url = request.build_absolute_uri(screenshot_path.replace('/videos/videos/', '/videos/'))
             print(f"Generated screenshot URL: {full_url}")
             return full_url
         return None

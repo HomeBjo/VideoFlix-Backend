@@ -72,6 +72,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'gruppe49345.developerakademie.org',
     'pino.xn--bjrnteneicken-jmb.de', 
+    'videoflix.aleksanderdemyanovych.de'
 ]
 
 # Django Toolbar

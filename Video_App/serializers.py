@@ -83,9 +83,9 @@ class VideoSerializer(serializers.ModelSerializer):
             return full_url
         return None
 
-    def get_screenshot(self, obj):
+    def get_screenshot_url(self, obj):
         """
-        Retrieves the URL of the video's screenshot.
+        Retrieves the full URL of the screenshot for the video file.
 
         Args:
         -----
@@ -93,17 +93,18 @@ class VideoSerializer(serializers.ModelSerializer):
 
         Returns:
         --------
-        str: The absolute URL of the screenshot image, or None if no video file exists.
+        str: The absolute URL of the screenshot, or None if no video file exists.
         """
         request = self.context.get('request')
         if obj.video_file:
+            video_folder = os.path.dirname(obj.video_file.url)
             base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
-            video_folder = self.get_video_folder(obj).replace('_master.m3u8', '').replace(f'/{base_name}/{base_name}', f'/{base_name}', 1)
+
             screenshot_path = f"{video_folder}/{base_name}_screenshot.png"
 
             full_url = request.build_absolute_uri(screenshot_path)
+            print(f"Generated screenshot URL: {full_url}")
             return full_url
-    
         return None
 
 

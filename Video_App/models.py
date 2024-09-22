@@ -1,6 +1,15 @@
 from datetime import date
+import os
 from django.db import models
 from Users.models import CustomUser
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+
+
+
+class VideoStorage(FileSystemStorage):
+    def get_available_name(self, name, max_length=None):
+        return name
 
 
 class Video(models.Model):
@@ -27,9 +36,8 @@ class Video(models.Model):
     created_at = models.DateField(default=date.today)
     description = models.CharField(max_length=500)
     video_file = models.FileField(upload_to='videos', blank=True, null=True)
-    category = models.CharField(max_length=100, default='all_videos') 
-    screenshot = models.ImageField(upload_to='screenshots', blank=True, null=True)
-    
+    category = models.CharField(max_length=100, default='all_videos')
+    image = models.ImageField(upload_to='videos', blank=True, null=True, storage=VideoStorage())
     
     def __str__(self):
         """
@@ -38,6 +46,34 @@ class Video(models.Model):
         video_file_name = self.video_file.name if self.video_file else "Keine Videodatei"
         return f"title: {self.title} || video_data_name: {video_file_name}"
     
+    
+    def save(self, *args, **kwargs):
+        """
+        Custom save method that organizes the image (thumbnail) into a folder based on the video file's base name.
+
+        If a video file exists, it extracts the base name (without extension) to use as the folder name.
+        If an image is present, it updates the image's file path to store it under this folder.
+
+        Parameters:
+        -----------
+        - *args: Positional arguments for the parent save method.
+        - **kwargs: Keyword arguments for the parent save method.
+        """
+        if self.video_file:
+            folder_name = os.path.splitext(os.path.basename(self.video_file.name))[0]
+
+            if self.image and hasattr(self.image, 'file'):
+                original_image_name = os.path.basename(self.image.name)
+                self.image.name = os.path.join(folder_name, original_image_name)
+
+                if self.image.file:
+                    self.image.save(self.image.name, self.image.file, save=False)
+
+        super().save(*args, **kwargs)
+
+
+
+
     
 class FavoriteVideo(models.Model):
     """

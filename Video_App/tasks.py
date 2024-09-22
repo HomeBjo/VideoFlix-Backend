@@ -19,6 +19,7 @@ def convert_video(source, resolution, suffix):
     print('linux_target', target)
     try:
         run = subprocess.run(cmd_hls, capture_output=True, shell=True)
+        print(run.stderr.decode())
         run.check_returncode()
         return target
     except subprocess.CalledProcessError as e:

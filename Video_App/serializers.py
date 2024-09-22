@@ -37,11 +37,11 @@ class VideoSerializer(serializers.ModelSerializer):
     """
     is_favorite = serializers.SerializerMethodField()
     video_folder = serializers.SerializerMethodField()
-    screenshot = serializers.SerializerMethodField()
+    image  = serializers.SerializerMethodField()
 
     class Meta:
         model = Video
-        fields = ['id', 'is_favorite', 'title', 'url', 'created_at', 'description', 'video_folder', 'screenshot', 'category']
+        fields = ['id', 'is_favorite', 'title', 'url', 'created_at', 'description', 'video_folder', 'category', 'image']
 
     def get_is_favorite(self, obj):
         """
@@ -83,28 +83,47 @@ class VideoSerializer(serializers.ModelSerializer):
             return full_url
         return None
 
-    def get_screenshot(self, obj):
+    def get_image(self, obj):
         """
-        Retrieves the URL of the video's screenshot.
+        Retrieves the URL of the video's screenshot image.
+
+        This method searches for an image file in the directory where the video file is stored and returns its URL.
 
         Args:
         -----
-        obj (Video): The video object.
+        - obj (Video): The video object.
 
         Returns:
         --------
-        str: The absolute URL of the screenshot image, or None if no video file exists.
+        - str: The absolute URL of the screenshot image, or None if no image is found.
         """
         request = self.context.get('request')
         if obj.video_file:
-            base_name = os.path.splitext(os.path.basename(obj.video_file.url))[0]
-            video_folder = self.get_video_folder(obj).replace('_master.m3u8', '').replace(f'/{base_name}/{base_name}', f'/{base_name}', 1)
-            screenshot_path = f"{video_folder}/{base_name}_screenshot.png"
+            video_file_path = obj.video_file.path
+            print('video_file path:', video_file_path)
+            screenshot_dir = os.path.dirname(video_file_path).replace('\\', '/')
+            image_dir = screenshot_dir.replace('/videos/videos/', '/videos/')
+            image_extensions = ['.jpg', '.png', '.webp']
+            screenshot_name = None
 
-            full_url = request.build_absolute_uri(screenshot_path)
-            return full_url
-    
+            for ext in image_extensions:
+                for filename in os.listdir(image_dir):
+                    if filename.endswith(ext):
+                        screenshot_name = filename
+                        break
+                if screenshot_name:
+                    break
+
+            if screenshot_name:
+                folder_name = os.path.basename(image_dir)
+                image_path = f"/media/videos/{folder_name}/{screenshot_name}"
+                return request.build_absolute_uri(image_path)
+            
         return None
+
+
+
+
 
 
 class FavoriteVideoSerializer(serializers.Serializer):

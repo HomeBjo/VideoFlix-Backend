@@ -10,6 +10,19 @@ from django.conf import settings
 
 @receiver(post_save, sender=Video)
 def video_post_save(sender, instance, created, **kwargs):
+    """
+    Handles the post-save signal for the Video model.
+
+    If a new video is uploaded, it creates a folder based on the video file's base name,
+    moves the video file into this folder, updates the video file's path, and queues video conversion tasks.
+
+    Parameters:
+    -----------
+    - sender: The model class (Video).
+    - instance: The saved Video instance.
+    - created: Boolean indicating if a new record was created.
+    - **kwargs: Additional keyword arguments.
+    """
     if created:
         print('New Video uploaded')
         folder_name = os.path.splitext(instance.video_file.name)[0]
@@ -35,7 +48,17 @@ def video_post_save(sender, instance, created, **kwargs):
 
 @receiver(post_delete, sender=Video)
 def delete_video_file(sender, instance, **kwargs):
-    print('Video start deleting')
+    """
+    Handles the post-delete signal for the Video model.
+
+    Deletes the folder containing the video and associated files when a Video instance is removed.
+
+    Parameters:
+    -----------
+    - sender: The model class (Video).
+    - instance: The deleted Video instance.
+    - **kwargs: Additional keyword arguments.
+    """
     if instance.video_file:
         folder_name = os.path.splitext(os.path.basename(instance.video_file.name))[0]
         folder = os.path.join(settings.MEDIA_ROOT, folder_name)

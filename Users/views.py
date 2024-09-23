@@ -33,7 +33,7 @@ CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 def activate(request, uidb64, token):
     """
-        weiterleitung nach der E-Mail-Aktivierung
+        Forwarding after email activation
     """
     CustomUser = get_user_model()  
     try:
@@ -41,13 +41,31 @@ def activate(request, uidb64, token):
         user = CustomUser.objects.get(pk=uid)
     except(TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
         user = None
+
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
         token, created = Token.objects.get_or_create(user=user)
-        return redirect('http://localhost:4200/video_site')
+
+        current_domain = request.get_host()
+        
+        if "aleksanderdemyanovych.de" in current_domain:
+            return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
+        elif "xn--bjrnteneicken-jmb.de" in current_domain:
+            return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
+        else:
+            return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
+
     else:
-        return redirect('http://localhost:4200/login')
+        current_domain = request.get_host()
+        
+        if "aleksanderdemyanovych.de" in current_domain:
+            return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+        elif "xn--bjrnteneicken-jmb.de" in current_domain:
+            return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
+        else:
+            return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+
 
         
 class RegisterViewSet(viewsets.ViewSet):

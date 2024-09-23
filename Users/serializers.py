@@ -114,7 +114,7 @@ class EmailAuthTokenSerializer(serializers.Serializer):
         ValidationError: If the email or password is incorrect or the user is inactive.
         """
         print(attrs)
-        user = get_user_model().objects.filter(email=attrs['email']).first()
+        user = get_user_model().objects.get(email=attrs['email'])
         if user and user.check_password(attrs['password']) and user.is_active: 
             attrs['user'] = user 
             return attrs

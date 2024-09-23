@@ -17,7 +17,7 @@ from django.conf import settings
 
 
 
-# CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 
 class VideoViewSet(viewsets.ModelViewSet):
@@ -50,7 +50,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     serializer_class = VideoSerializer
     
 
-    # @method_decorator(cache_page(CACHE_TTL)) 
+    @method_decorator(cache_page(CACHE_TTL)) 
     @action(detail=False, methods=['get'])
     def get_videos(self, request):
         """
@@ -79,7 +79,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         serializer = VideoSerializer(favorite_videos, many=True, context={'request': request})
         return Response(serializer.data)
 
-    # @method_decorator(cache_page(CACHE_TTL)) 
+    @method_decorator(cache_page(CACHE_TTL)) 
     @action(detail=False, methods=['get'])
     def top5(self, request):
         """
@@ -93,7 +93,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         serializer = VideoSerializer(top5_videos, many=True, context={'request': request})
         return Response(serializer.data)
 
-    # @method_decorator(cache_page(CACHE_TTL)) 
+    @method_decorator(cache_page(CACHE_TTL)) 
     @action(detail=False, methods=['get'], url_path='category/(?P<category>[^/.]+)')
     def category_videos(self, request, category=None):
         """

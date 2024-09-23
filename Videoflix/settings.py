@@ -239,7 +239,7 @@ RQ_QUEUES = {
         'PORT': 6379,
         'DB': 0,
         'PASSWORD': config('REDIS_PW'), 
-        'DEFAULT_TIMEOUT': 1000,
+        'DEFAULT_TIMEOUT': 1800,
         # 'REDIS_CLIENT_KWARGS': {    # Eventual additional Redis connection arguments
         #     'ssl_cert_reqs': None,  # für auth bei redis
         # },

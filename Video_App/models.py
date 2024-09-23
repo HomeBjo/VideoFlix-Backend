@@ -59,22 +59,17 @@ class Video(models.Model):
         - *args: Positional arguments for the parent save method.
         - **kwargs: Keyword arguments for the parent save method.
         """
-        if self.pk:
-            previous = Video.objects.get(pk=self.pk)
-            if self.video_file != previous.video_file or self.image != previous.image:
-                if self.video_file:
-                    folder_name = os.path.splitext(os.path.basename(self.video_file.name))[0]
+        if self.video_file:
+            folder_name = os.path.splitext(os.path.basename(self.video_file.name))[0]
 
-                    if self.image and hasattr(self.image, 'file'):
-                        original_image_name = os.path.basename(self.image.name)
-                        self.image.name = os.path.join(folder_name, original_image_name)
+            if self.image and hasattr(self.image, 'file'):
+                original_image_name = os.path.basename(self.image.name)
+                self.image.name = os.path.join(folder_name, original_image_name)
 
-                        if self.image.file:
-                            self.image.save(self.image.name, self.image.file, save=False)
+                if self.image.file:
+                    self.image.save(self.image.name, self.image.file, save=False)
 
-            super().save(*args, **kwargs)
-
-
+        super().save(*args, **kwargs)
 
 
     

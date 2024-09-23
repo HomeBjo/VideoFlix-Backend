@@ -24,10 +24,8 @@ def video_post_save(sender, instance, created, **kwargs):
     - **kwargs: Additional keyword arguments.
     """
     if created:
-        print('New Video uploaded')
         folder_name = os.path.splitext(instance.video_file.name)[0]
         folder = os.path.join(settings.MEDIA_ROOT, folder_name)
-        print(f'found folder: {folder}')
         os.makedirs(folder, exist_ok=True)
         
         original_video_path = instance.video_file.path
@@ -39,7 +37,6 @@ def video_post_save(sender, instance, created, **kwargs):
 
         queue = django_rq.get_queue('default', autocommit=True)
         new_video_path = new_video_path.replace('\\', '/')
-        print(f'new video path: {new_video_path}')
         queue.enqueue(convert_video_480p, new_video_path)
         queue.enqueue(convert_video_720p, new_video_path)
         queue.enqueue(convert_video_1080p, new_video_path)
@@ -63,7 +60,5 @@ def delete_video_file(sender, instance, **kwargs):
         folder_name = os.path.splitext(os.path.basename(instance.video_file.name))[0]
         folder = os.path.join(settings.MEDIA_ROOT, folder_name)
         new_folder_path = folder.replace('\\', '/')
-        print(f'found folder: {new_folder_path}')
         if os.path.isdir(new_folder_path):
-            print(f'Folder deleted: {new_folder_path}')
             shutil.rmtree(new_folder_path)

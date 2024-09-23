@@ -121,6 +121,43 @@ class VideoSerializer(serializers.ModelSerializer):
             
         return None
 
+    def update(self, instance, validated_data):
+        """
+        Update the Video instance with the provided validated data.
+
+        This method checks for changes in the `video_file` and `image` fields and performs specific actions
+        (like updating image paths) only when necessary. Other fields like `description` are updated directly.
+
+        Args:
+        -----
+        - instance (Video): The existing video instance to be updated.
+        - validated_data (dict): The data with which to update the instance.
+
+        Returns:
+        --------
+        - Video: The updated video instance.
+        """
+
+        video_file = validated_data.get('video_file', instance.video_file)
+        image = validated_data.get('image', instance.image)
+
+        if video_file != instance.video_file or image != instance.image:
+            if video_file:
+                folder_name = os.path.splitext(os.path.basename(video_file.name))[0]
+
+                if image and hasattr(image, 'file'):
+                    original_image_name = os.path.basename(image.name)
+                    new_image_name = os.path.join(folder_name, original_image_name)
+
+                    instance.image.name = new_image_name
+                    instance.image.save(instance.image.name, instance.image.file, save=False)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+    
+        instance.save()
+
+        return instance
 
 
 

@@ -165,7 +165,6 @@ class PasswordResetSerializer(serializers.Serializer):
         request = self.context.get('request')
 
         referer = request.META.get('HTTP_REFERER', '')
-        print(f"Referer: {referer}")
         
         if "aleksanderdemyanovych.de" in referer:
             frontend_url = "https://videoflix.aleksanderdemyanovych.de"

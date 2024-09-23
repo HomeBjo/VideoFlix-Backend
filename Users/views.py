@@ -47,21 +47,21 @@ def activate(request, uidb64, token):
         user.save()
         token, created = Token.objects.get_or_create(user=user)
 
-        current_domain = request.get_host()
+        referer = request.META.get('HTTP_REFERER', '')
         
-        if "aleksanderdemyanovych.de" in current_domain:
+        if "aleksanderdemyanovych.de" in referer:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
-        elif "xn--bjrnteneicken-jmb.de" in current_domain:
+        elif "xn--bjrnteneicken-jmb.de" in referer:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
 
     else:
-        current_domain = request.get_host()
+        referer = request.META.get('HTTP_REFERER', '')
         
-        if "aleksanderdemyanovych.de" in current_domain:
+        if "aleksanderdemyanovych.de" in referer:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-        elif "xn--bjrnteneicken-jmb.de" in current_domain:
+        elif "xn--bjrnteneicken-jmb.de" in referer:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')

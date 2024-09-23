@@ -169,6 +169,8 @@ class PasswordResetSerializer(serializers.Serializer):
             frontend_url = "https://videoflix.aleksanderdemyanovych.de"
         elif "xn--bjrnteneicken-jmb.de" in current_domain:
             frontend_url = "https://videoflix.xn--bjrnteneicken-jmb.de"
+        else:
+            frontend_url = "https://videoflix.aleksanderdemyanovych.de"
     
 
         password_reset_form = PasswordResetForm(data=self.validated_data)

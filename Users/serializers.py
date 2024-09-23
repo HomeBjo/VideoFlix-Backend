@@ -164,13 +164,12 @@ class PasswordResetSerializer(serializers.Serializer):
         """
         request = self.context.get('request')
 
-        current_domain = request.get_host()
+        current_domain = request.build_absolute_uri('/')[:-1].strip("/")
         if "aleksanderdemyanovych.de" in current_domain:
             frontend_url = "https://videoflix.aleksanderdemyanovych.de"
         elif "xn--bjrnteneicken-jmb.de" in current_domain:
             frontend_url = "https://videoflix.xn--bjrnteneicken-jmb.de"
-        else:
-            frontend_url = "https://videoflix.aleksanderdemyanovych.de"
+    
 
         password_reset_form = PasswordResetForm(data=self.validated_data)
         if password_reset_form.is_valid():

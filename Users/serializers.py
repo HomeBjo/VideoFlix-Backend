@@ -163,11 +163,17 @@ class PasswordResetSerializer(serializers.Serializer):
         - Sends a password reset email using the provided email template and context.
         """
         request = self.context.get('request')
-        frontend_url = "http://localhost:4200" 
-        
+
+        current_domain = request.get_host()
+        if "aleksanderdemyanovych.de" in current_domain:
+            frontend_url = "https://videoflix.aleksanderdemyanovych.de"
+        elif "xn--bjrnteneicken-jmb.de" in current_domain:
+            frontend_url = "https://videoflix.xn--bjrnteneicken-jmb.de"
+        else:
+            frontend_url = "https://videoflix.aleksanderdemyanovych.de"
+
         password_reset_form = PasswordResetForm(data=self.validated_data)
         if password_reset_form.is_valid():
-           
             password_reset_form.save(
                 request=request,
                 use_https=request.is_secure(),

@@ -164,13 +164,15 @@ class PasswordResetSerializer(serializers.Serializer):
         """
         request = self.context.get('request')
 
-        current_domain = request.build_absolute_uri('/')[:-1].strip("/")
-        if "aleksanderdemyanovych.de" in current_domain:
+        referer = request.META.get('HTTP_REFERER', '')
+        print(f"Referer: {referer}")
+        
+        if "aleksanderdemyanovych.de" in referer:
             frontend_url = "https://videoflix.aleksanderdemyanovych.de"
-        elif "xn--bjrnteneicken-jmb.de" in current_domain:
+        elif "xn--bjrnteneicken-jmb.de" in referer:
             frontend_url = "https://videoflix.xn--bjrnteneicken-jmb.de"
         else:
-            frontend_url = "https://videoflix.xn--bjrnteneicken-jmb.de"
+            frontend_url = "https://videoflix.aleksanderdemyanovych.de"
     
 
         password_reset_form = PasswordResetForm(data=self.validated_data)

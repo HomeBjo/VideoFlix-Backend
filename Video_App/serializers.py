@@ -79,7 +79,6 @@ class VideoSerializer(serializers.ModelSerializer):
             video_folder = os.path.join(video_folder, base_name + '_master.m3u8').replace('\\', '/')
             
             full_url = request.build_absolute_uri(video_folder.replace('/videos/videos/', '/videos/'))
-            print(f"Generated video folder URL: {full_url}")
             return full_url
         return None
 
@@ -100,7 +99,6 @@ class VideoSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if obj.video_file:
             video_file_path = obj.video_file.path
-            print('video_file path:', video_file_path)
             screenshot_dir = os.path.dirname(video_file_path).replace('\\', '/')
             image_dir = screenshot_dir.replace('/videos/videos/', '/videos/')
             image_extensions = ['.jpg', '.png', '.webp']

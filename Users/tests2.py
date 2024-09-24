@@ -138,9 +138,9 @@ class TokenVerificationViewSetTest(APITestCase):
         }
         try:
             self.url = reverse('Users:verify-token-list')
-            print(self.url)
+           
         except NoReverseMatch:
-            print("URL-Name nicht gefunden.")
+            self.fail("The URL name 'Users:verify-token-list' was not found.")
     
     
     def test_token_verification_success(self):

@@ -56,7 +56,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'gruppe49345.developerakademie.org',
     'videoflix.xn--bjrnteneicken-jmb.de', 
-    'videoflix.aleksanderdemyanovych.de'
+    'videoflix.aleksanderdemyanovych.de',
+    'videoflix.videoflixgruppe.de'
 ]
 
 # Django Toolbar
@@ -91,6 +92,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://gruppe49345.developerakademie.org",
     "https://videoflix.xn--bjrnteneicken-jmb.de",
     "https://videoflix.aleksanderdemyanovych.de",
+    "https://videoflix.videoflixgruppe.de",
 ]
 
 

@@ -21,7 +21,6 @@ def delete_origin_mp4(linux_source):
         raise FileNotFoundError(f'The file "{linux_source}" does not exist.')
 
 
-
 def convert_video(source, resolution, suffix):
     """
     Converts a video to HLS format with the given resolution and suffix.
@@ -52,8 +51,7 @@ def convert_video(source, resolution, suffix):
         run.check_returncode()
         return target
     except subprocess.CalledProcessError as e:
-        return None 
-
+        return None
 
 
 def convert_video_480p(source):
@@ -71,7 +69,6 @@ def convert_video_480p(source):
     return convert_video(source, 'hd480', '480p')
 
 
-
 def convert_video_720p(source):
     """
     Converts a video to 720p HLS format.
@@ -85,7 +82,6 @@ def convert_video_720p(source):
     str: The target HLS file path if successful, or `None` if the conversion fails.
     """
     return convert_video(source, 'hd720', '720p')
-
 
 
 def convert_video_1080p(source):
@@ -110,7 +106,6 @@ def convert_video_1080p(source):
     if linux_target:
         create_master_playlist(os.path.dirname(linux_target), os.path.basename(source))
         delete_origin_mp4(source.replace('\\', '/'))
-
 
 
 def create_master_playlist(target_directory, base_name):
@@ -140,5 +135,3 @@ def create_master_playlist(target_directory, base_name):
         f.write(f"{file_name}_720p.m3u8\n")
         f.write("#EXT-X-STREAM-INF:BANDWIDTH=5000000,RESOLUTION=1920x1080\n")
         f.write(f"{file_name}_1080p.m3u8\n")
-    
-

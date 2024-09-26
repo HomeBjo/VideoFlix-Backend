@@ -44,8 +44,9 @@ def convert_video(source, resolution, suffix):
     """
     file_name, _ = os.path.splitext(source)
     target = file_name + f'_{suffix}.m3u8'
-    cmd_hls = f'ffmpeg -i "{source}" -s {resolution} -c:v libx264 -crf 23 -c:a aac -strict -2 -start_number 0 -hls_time 10 -hls_list_size 0 -f hls "{target}"'
-    
+    # cmd_hls = f'ffmpeg -i "{source}" -s {resolution} -c:v libx264 -crf 23 -c:a aac -strict -2 -start_number 0 -hls_time 10 -hls_list_size 0 -f hls "{target}"'
+    cmd_hls = f'ffmpeg -i "{source}" -s {resolution} -c:v libx264 -crf 23 -c:a aac -strict -2 -start_number 0 -hls_time 10 -hls_list_size 0 -f hls "{target}" -threads 1'
+
     try:
         run = subprocess.run(cmd_hls, capture_output=True, shell=True)
         run.check_returncode()

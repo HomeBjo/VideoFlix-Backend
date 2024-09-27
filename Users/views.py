@@ -27,13 +27,13 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-import logging
+
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 def activate(request, uidb64, token):
     """
-    Forwarding after email activation.
+        Forwarding after email activation
     """
     CustomUser = get_user_model()  
     try:
@@ -42,36 +42,30 @@ def activate(request, uidb64, token):
     except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
         user = None
 
-    # Debugging-Ausgaben
-    print(f"UID: {uid}, Token: {token}, User: {user}")
-
     if user is not None and account_activation_token.check_token(user, token):
-        # Referer-URL abrufen
+        user.is_active = True
+        user.save()
+        token, created = Token.objects.get_or_create(user=user)
+
+        # Check referer and redirect accordingly
         referer = request.META.get('HTTP_REFERER', '')
-        print(f"Referer: {referer}, Stored Activation URL: {user.activation_url}")
-
-        # Überprüfen, ob die gespeicherte Aktivierungs-URL im Referer enthalten ist
-        if user.activation_url and user.activation_url in referer:
-            user.is_active = True
-            user.save()
-            token, created = Token.objects.get_or_create(user=user)
-
-            # Weiterleitung basierend auf dem Referer
-            if "aleksanderdemyanovych.de" in referer:
-                return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
-            elif "xn--bjrnteneicken-jmb.de" in referer:
-                return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
-            else:
-                return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
+        
+        if "videoflix.aleksanderdemyanovych.de" in referer:
+            return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
+        elif "videoflix.xn--bjrnteneicken-jmb.de" in referer:
+            return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
         else:
-            # Ungültiger Aktivierungslink
-            print("Invalid activation link.")
-            return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-    else:
-        print("Invalid token or user.")
-        # Fehlerbehandlung, falls Token ungültig ist
-        return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+            return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
 
+    else:
+        referer = request.META.get('HTTP_REFERER', '')
+        
+        if "videoflix.aleksanderdemyanovych.de" in referer:
+            return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+        elif "videoflix.xn--bjrnteneicken-jmb.de" in referer:
+            return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
+        else:
+            return redirect('https://videoflix.aleksanderdemyanovych.de/login')
 
         
 class RegisterViewSet(viewsets.ViewSet):
@@ -102,25 +96,18 @@ class RegisterViewSet(viewsets.ViewSet):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            user.is_active = False  # Benutzer zunächst inaktiv
-
-            # Aktivierungs-URL basierend auf der aktuellen Site bestimmen
+            user.is_active = False
+            
+            # Generate the activation URL
             current_site = get_current_site(request)
-            activation_url = f"https://{current_site.domain}/activate/{urlsafe_base64_encode(force_bytes(user.pk))}/{account_activation_token.make_token(user)}/"
-            user.activation_url = activation_url  # Aktivierungs-URL speichern
+            activation_url = f"{request.scheme}://{current_site.domain}/activate/{urlsafe_base64_encode(force_bytes(user.pk))}/{account_activation_token.make_token(user)}/"
+            user.activation_url = activation_url  # Store the activation URL in the user
             user.save()
-
-            # Debugging-Ausgaben
-            print(f"Activation URL: {activation_url}")  # URL zur Überprüfung
-            print(f"Token: {account_activation_token.make_token(user)}")  # Token zur Überprüfung
 
             mail_subject = 'Activate your account.'
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-                'protocol': 'https'
+                'activation_url': activation_url,  # Use the activation URL in the email
             })
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
@@ -132,7 +119,6 @@ class RegisterViewSet(viewsets.ViewSet):
             }, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     
     
 
@@ -249,50 +235,38 @@ class LogoutViewSet(viewsets.ViewSet):
         logout(request)
         return Response({'message': 'Logout successful'})
     
-logger = logging.getLogger(__name__)
 
 class CheckEmailView(viewsets.ViewSet):
-    def post(self, request):
-        email = request.data.get('email')  # E-Mail aus dem Anfrageobjekt holen
+    """
+    Checks if an email is already registered in the system.
+    
+    Permissions:
+    ------------
+    - AllowAny: Allows any user to check if an email exists.
+    """
+    permission_classes = (AllowAny,)
+
+    def create(self, request):
+        """
+        Verifies if the provided email is already registered.
+
+        Process:
+        --------
+        - Takes the email from the request.
+        - Checks if a user with this email exists in the system.
+
+        Returns:
+        --------
+        - True if the email exists, False otherwise.
+        """
+        email = request.data.get('email')
         if not email:
             raise ValidationError({'error': 'Email is required.'})
-
-        User = get_user_model()
-        if User.objects.filter(email=email).exists():
-            return Response({'message': 'Email exists.'}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'Email not found.'}, status=status.HTTP_404_NOT_FOUND)
-# class CheckEmailView(viewsets.ViewSet):
-#     """
-#     Checks if an email is already registered in the system.
-    
-#     Permissions:
-#     ------------
-#     - AllowAny: Allows any user to check if an email exists.
-#     """
-#     permission_classes = (AllowAny,)
-
-#     def create(self, request):
-#         """
-#         Verifies if the provided email is already registered.
-
-#         Process:
-#         --------
-#         - Takes the email from the request.
-#         - Checks if a user with this email exists in the system.
-
-#         Returns:
-#         --------
-#         - True if the email exists, False otherwise.
-#         """
-#         email = request.data.get('email')
-#         if not email:
-#             raise ValidationError({'error': 'Email is required.'})
         
-#         CustomUser = get_user_model()
-#         if CustomUser.objects.filter(email=email).exists():
-#             return Response({'exists': True}, status=status.HTTP_200_OK)
-#         return Response({'exists': False}, status=status.HTTP_200_OK)
+        CustomUser = get_user_model()
+        if CustomUser.objects.filter(email=email).exists():
+            return Response({'exists': True}, status=status.HTTP_200_OK)
+        return Response({'exists': False}, status=status.HTTP_200_OK)
 
     
 class PasswordResetAPIView(APIView):

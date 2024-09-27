@@ -147,28 +147,36 @@ class RegisterViewSet(viewsets.ViewSet):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            user.is_active = False  
+            user.is_active = False
             user.save()
 
+            # Bestimme die Frontend-Domain und das Protokoll
             referer = request.META.get('HTTP_REFERER', '')
-            
             if "aleksanderdemyanovych.de" in referer:
-                frontend_url = "https://videoflix.aleksanderdemyanovych.de"
+                domain = "videoflix.aleksanderdemyanovych.de"
+                protocol = "https"
             elif "xn--bjrnteneicken-jmb.de" in referer:
-                frontend_url = "https://videoflix.xn--bjrnteneicken-jmb.de"
+                domain = "videoflix.xn--bjrnteneicken-jmb.de"
+                protocol = "https"
             else:
-                frontend_url = "https://videoflix.aleksanderdemyanovych.de" 
+                domain = "videoflix.aleksanderdemyanovych.de"  # Fallback
+                protocol = "https"
 
-            mail_subject = 'Activate your account.'
+            # Generiere den Aktivierungslink mit den Platzhaltern
             uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = account_activation_token.make_token(user)
-            activation_link = f"{frontend_url}/activate/{uid}/{token}/"
+            token = default_token_generator.make_token(user)
+            activation_link = f"{protocol}://{domain}/activate/{uid}/{token}/"
 
+            # Erstelle die E-Mail-Nachricht
+            mail_subject = 'Activate your account.'
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
-                'activation_link': activation_link,
+                'activation_link': activation_link,  # Nutze den neuen Aktivierungslink
+                'domain': domain,
+                'protocol': protocol,
+                'uid': uid,
+                'token': token
             })
-
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
             email.content_subtype = "html"
@@ -178,9 +186,7 @@ class RegisterViewSet(viewsets.ViewSet):
                 'message': 'Please confirm your email address to complete the registration.'
             }, status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
     
 
 class LoginViewSet(ObtainAuthToken, viewsets.ViewSet):

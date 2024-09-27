@@ -45,11 +45,10 @@ def activate(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
-        token, created = Token.objects.get_or_create(user=user)
-
-        # Check referer and redirect accordingly
+        
         referer = request.META.get('HTTP_REFERER', '')
         
+        # Check the referer and set the appropriate redirect URL
         if "videoflix.aleksanderdemyanovych.de" in referer:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
         elif "videoflix.xn--bjrnteneicken-jmb.de" in referer:
@@ -60,13 +59,13 @@ def activate(request, uidb64, token):
     else:
         referer = request.META.get('HTTP_REFERER', '')
         
+        # Handle failed activation attempts
         if "videoflix.aleksanderdemyanovych.de" in referer:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
         elif "videoflix.xn--bjrnteneicken-jmb.de" in referer:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-
         
 class RegisterViewSet(viewsets.ViewSet):
     """
@@ -98,16 +97,15 @@ class RegisterViewSet(viewsets.ViewSet):
             user = serializer.save()
             user.is_active = False
             
-            # Generate the activation URL
             current_site = get_current_site(request)
-            activation_url = f"{request.scheme}://{current_site.domain}/activate/{urlsafe_base64_encode(force_bytes(user.pk))}/{account_activation_token.make_token(user)}/"
-            user.activation_url = activation_url  # Store the activation URL in the user
+            activation_url = f"http://{current_site.domain}"
+            user.activation_url = activation_url
             user.save()
 
             mail_subject = 'Activate your account.'
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
-                'activation_url': activation_url,  # Use the activation URL in the email
+                'activation_url': activation_url
             })
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])

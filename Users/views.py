@@ -28,25 +28,29 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from django.http import HttpResponseBadRequest
+import logging
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
+logger = logging.getLogger('Video_App')
 
 def activate(request, uidb64, token):
     """
-        Forwarding after email activation
+    Forwarding after email activation
     """
     uidb64 = request.GET.get('uid')
     token = request.GET.get('token')
     domain = request.GET.get('domain')
 
     if not uidb64 or not token or not domain:
+        logger.error("Invalid activation link: Missing UID, token, or domain")
         return HttpResponseBadRequest("Invalid activation link")
 
     CustomUser = get_user_model()
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = CustomUser.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist) as e:
+        logger.error(f"User activation failed: {e}")
         user = None
 
     if user is not None and account_activation_token.check_token(user, token):
@@ -54,6 +58,7 @@ def activate(request, uidb64, token):
         user.save()
 
         token, created = Token.objects.get_or_create(user=user)
+        logger.info(f"User {user.email} activated successfully.")
 
         if "aleksanderdemyanovych.de" in domain:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
@@ -63,6 +68,7 @@ def activate(request, uidb64, token):
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
 
     else:
+        logger.warning(f"Activation link invalid for user with UID {uid}")
         if "aleksanderdemyanovych.de" in domain:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
         elif "xn--bjrnteneicken-jmb.de" in domain:
@@ -115,21 +121,26 @@ class RegisterViewSet(viewsets.ViewSet):
             query_string = urlencode(activation_params)
 
             activation_link = f"https://{domain}/activate?{query_string}"
-            print(f"Activation link: {activation_link}")
+            logger.info(f"Activation link for user {user.email}: {activation_link}")
+
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
                 'activation_link': activation_link,
             })
-            print(f"Email content: {message}")
+            logger.debug(f"Email content for user {user.email}: {message}")
+            
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
             email.content_subtype = "html"
             email.send()
 
+            logger.info(f"Activation email sent to {to_email}")
+
             return Response({
                 'message': 'Please confirm your email address to complete the registration.'
             }, status=status.HTTP_201_CREATED)
         else:
+            logger.error(f"Registration failed: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     

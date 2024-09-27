@@ -68,6 +68,57 @@ def activate(request, uidb64, token):
 
 
         
+# class RegisterViewSet(viewsets.ViewSet):
+#     """
+#     This ViewSet handles user registration.
+    
+#     Permissions:
+#     ------------
+#     - AllowAny: Allows any user to access the registration functionality.
+#     """
+#     permission_classes = (AllowAny,)
+
+#     def create(self, request):
+#         """
+#         Handles user registration and sends an activation email.
+        
+#         Process:
+#         --------
+#         - Validates the user data.
+#         - Saves the user, but sets them as inactive initially.
+#         - Sends an email with an activation link to confirm the account.
+        
+#         Returns:
+#         --------
+#         - On success: A message instructing the user to confirm their email.
+#         - On failure: Validation errors.
+#         """
+#         serializer = UserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             user = serializer.save()
+#             user.is_active = False
+#             user.save()
+
+#             current_site = get_current_site(request)
+#             mail_subject = 'Activate your account.'
+#             message = render_to_string('templates_activate_account.html', {
+#                 'user': user,
+#                 'domain': current_site.domain,
+#                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+#                 'token': account_activation_token.make_token(user),
+#                 'protocol': 'http'
+#             })
+#             to_email = serializer.validated_data.get('email')
+#             email = EmailMessage(mail_subject, message, to=[to_email])
+#             email.content_subtype = "html"
+#             email.send()
+
+#             return Response({
+#                 'message': 'Please confirm your email address to complete the registration.'
+#             }, status=status.HTTP_201_CREATED)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class RegisterViewSet(viewsets.ViewSet):
     """
     This ViewSet handles user registration.
@@ -96,18 +147,28 @@ class RegisterViewSet(viewsets.ViewSet):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            user.is_active = False
+            user.is_active = False  
             user.save()
 
-            current_site = get_current_site(request)
+            referer = request.META.get('HTTP_REFERER', '')
+            
+            if "aleksanderdemyanovych.de" in referer:
+                frontend_url = "https://videoflix.aleksanderdemyanovych.de"
+            elif "xn--bjrnteneicken-jmb.de" in referer:
+                frontend_url = "https://videoflix.xn--bjrnteneicken-jmb.de"
+            else:
+                frontend_url = "https://videoflix.aleksanderdemyanovych.de" 
+
             mail_subject = 'Activate your account.'
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = account_activation_token.make_token(user)
+            activation_link = f"{frontend_url}/activate/{uid}/{token}/"
+
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-                'protocol': 'http'
+                'activation_link': activation_link,
             })
+
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
             email.content_subtype = "html"
@@ -118,6 +179,7 @@ class RegisterViewSet(viewsets.ViewSet):
             }, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     
     
 

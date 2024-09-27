@@ -256,19 +256,20 @@ class CheckEmailView(viewsets.ViewSet):
 
     def create(self, request):
         email = request.data.get('email')
-        logger.debug(f"Received email check request for email: {email}")  # Logge die E-Mail-Anfrage
+        logger.debug(f"Received email check request for email: {email}")
 
         if not email:
             logger.error('Email is required.')
             raise ValidationError({'error': 'Email is required.'})
 
         CustomUser = get_user_model()
-        if CustomUser.objects.filter(email=email).exists():
-            logger.info(f"Email exists: {email}")  # Logge, wenn die E-Mail existiert
+        try:
+            user = CustomUser.objects.get(email=email)
+            logger.info(f"Email exists: {email}")
             return Response({'exists': True}, status=status.HTTP_200_OK)
-        
-        logger.info(f"Email does not exist: {email}")  # Logge, wenn die E-Mail nicht existiert
-        return Response({'exists': False}, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            logger.warning(f"Email does not exist: {email}")
+            return Response({'exists': False}, status=status.HTTP_200_OK)
 # class CheckEmailView(viewsets.ViewSet):
 #     """
 #     Checks if an email is already registered in the system.

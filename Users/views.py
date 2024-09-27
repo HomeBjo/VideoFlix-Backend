@@ -114,19 +114,16 @@ class RegisterViewSet(viewsets.ViewSet):
             activation_params = {
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
-                'domain': domain 
             }
-            query_string = urlencode(activation_params)
 
-            activation_link = f"https://{domain}/activate?{query_string}"
+            activation_link = f"https://{domain}/activate/{activation_params['uid']}/{activation_params['token']}/"
             logger.info(f"Activation link for user {user.email}: {activation_link}")
 
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
                 'activation_link': activation_link,
             })
-            logger.debug(f"Email content for user {user.email}: {message}")
-            
+
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
             email.content_subtype = "html"
@@ -140,7 +137,8 @@ class RegisterViewSet(viewsets.ViewSet):
         else:
             logger.error(f"Registration failed: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
 
 class LoginViewSet(ObtainAuthToken, viewsets.ViewSet):
     permission_classes = (AllowAny,)

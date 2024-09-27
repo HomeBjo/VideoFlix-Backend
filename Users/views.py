@@ -252,24 +252,16 @@ class LogoutViewSet(viewsets.ViewSet):
 logger = logging.getLogger(__name__)
 
 class CheckEmailView(viewsets.ViewSet):
-    permission_classes = (AllowAny,)
-
-    def create(self, request):
-        email = request.data.get('email')
-        logger.debug(f"Received email check request for email: {email}")
-
+    def post(self, request):
+        email = request.data.get('email')  # E-Mail aus dem Anfrageobjekt holen
         if not email:
-            logger.error('Email is required.')
             raise ValidationError({'error': 'Email is required.'})
 
-        CustomUser = get_user_model()
-        try:
-            user = CustomUser.objects.get(email=email)
-            logger.info(f"Email exists: {email}")
-            return Response({'exists': True}, status=status.HTTP_200_OK)
-        except CustomUser.DoesNotExist:
-            logger.warning(f"Email does not exist: {email}")
-            return Response({'exists': False}, status=status.HTTP_200_OK)
+        User = get_user_model()
+        if User.objects.filter(email=email).exists():
+            return Response({'message': 'Email exists.'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Email not found.'}, status=status.HTTP_404_NOT_FOUND)
 # class CheckEmailView(viewsets.ViewSet):
 #     """
 #     Checks if an email is already registered in the system.

@@ -150,28 +150,25 @@ class RegisterViewSet(viewsets.ViewSet):
             user.is_active = False
             user.save()
 
-            # Bestimme die Frontend-Domain und das Protokoll
             referer = request.META.get('HTTP_REFERER', '')
             if "aleksanderdemyanovych.de" in referer:
-                domain = "videoflix.aleksanderdemyanovych.de"
+                domain = "videoflix.aleksanderdemyanovych.de/login"
                 protocol = "https"
             elif "xn--bjrnteneicken-jmb.de" in referer:
-                domain = "videoflix.xn--bjrnteneicken-jmb.de"
+                domain = "videoflix.xn--bjrnteneicken-jmb.de/login"
                 protocol = "https"
             else:
-                domain = "videoflix.aleksanderdemyanovych.de"  # Fallback
+                domain = "videoflix.aleksanderdemyanovych.de/login"
                 protocol = "https"
 
-            # Generiere den Aktivierungslink mit den Platzhaltern
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             activation_link = f"{protocol}://{domain}/activate/{uid}/{token}/"
 
-            # Erstelle die E-Mail-Nachricht
             mail_subject = 'Activate your account.'
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
-                'activation_link': activation_link,  # Nutze den neuen Aktivierungslink
+                'activation_link': activation_link,  
                 'domain': domain,
                 'protocol': protocol,
                 'uid': uid,

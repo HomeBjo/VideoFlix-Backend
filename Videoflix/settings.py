@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -57,8 +57,7 @@ ALLOWED_HOSTS = [
     'gruppe49345.developerakademie.org',
     'videoflix.xn--bjrnteneicken-jmb.de', 
     'videoflix.aleksanderdemyanovych.de',
-    'videoflix.videoflixgruppe.de',
-    '34.90.109.186'
+    'videoflix.videoflixgruppe.de'
 ]
 
 # Django Toolbar
@@ -293,28 +292,3 @@ EMAIL_HOST_PASSWORD = config('GMAIL_PW')
 # 4h timer
 PASSWORD_RESET_TIMEOUT = 14400
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'debug.log'),
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-        },
-        'Video_App': { 
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}

@@ -14,7 +14,7 @@ from Users.models import CustomUser
 from .tokens import account_activation_token
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode, urlencode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from django.contrib.auth import get_user_model
@@ -27,51 +27,47 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from django.http import HttpResponseBadRequest
-import logging
+
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
-logger = logging.getLogger('Video_App')
 
-def activate(request, uidb64=None, token=None):
+def activate(request, uidb64, token):
     """
-    Forwarding after email activation
+        Forwarding after email activation
     """
-    if uidb64 is None or token is None:
-        logger.error("Invalid activation link: Missing UID or token")
-        return HttpResponseBadRequest("Invalid activation link")
-
-    CustomUser = get_user_model()
+    CustomUser = get_user_model()  
     try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
+        uid = force_str(urlsafe_base64_decode(uidb64))  
         user = CustomUser.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist) as e:
-        logger.error(f"User activation failed: {e}")
+    except(TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
         user = None
 
-    domain = request.GET.get('domain', '')
-
     if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save()
-
-        token, created = Token.objects.get_or_create(user=user)
-        logger.info(f"User {user.email} activated successfully.")
-
-        if "aleksanderdemyanovych.de" in domain:
-            return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
-        elif "xn--bjrnteneicken-jmb.de" in domain:
-            return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
+        # Compare the stored activation URL with expected URLs
+        referer = request.META.get('HTTP_REFERER', '')
+        
+        # Check against the stored activation URL
+        if user.activation_url and user.activation_url in referer:
+            user.is_active = True
+            user.save()
+            token, created = Token.objects.get_or_create(user=user)
+            
+            # Redirect based on the referer
+            if "aleksanderdemyanovych.de" in referer:
+                return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
+            elif "xn--bjrnteneicken-jmb.de" in referer:
+                return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
+            else:
+                return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
         else:
-            return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
-    else:
-        logger.warning(f"Activation link invalid for user with UID {uid}")
-        if "aleksanderdemyanovych.de" in domain:
-            return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-        elif "xn--bjrnteneicken-jmb.de" in domain:
-            return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
-        else:
-            return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+            # Invalid activation link
+            referer = request.META.get('HTTP_REFERER', '')
+            if "aleksanderdemyanovych.de" in referer:
+                return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+            elif "xn--bjrnteneicken-jmb.de" in referer:
+                return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
+            else:
+                return redirect('https://videoflix.aleksanderdemyanovych.de/login')
 
 
         
@@ -104,44 +100,33 @@ class RegisterViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             user = serializer.save()
             user.is_active = False
-            user.save()
-    
+
+            # Determine the activation URL based on the current site
             current_site = get_current_site(request)
-            domain = current_site.domain
-    
+            activation_url = f"https://{current_site.domain}/activate/{urlsafe_base64_encode(force_bytes(user.pk))}/{account_activation_token.make_token(user)}/"
+            user.activation_url = activation_url  # Save the activation URL
+            user.save()
+
             mail_subject = 'Activate your account.'
-            activation_params = {
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-            }
-    
-            activation_link = f"https://{domain}/activate/{activation_params['uid']}/{activation_params['token']}/"
-            logger.info(f"Activation link for user {user.email}: {activation_link}")
-    
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
-                'activation_link': activation_link,
-                'domain': domain,  # Add domain to context
-                'uid': activation_params['uid'],  # Add uid to context
-                'token': activation_params['token'],  # Add token to context
-                'protocol': 'https' if request.is_secure() else 'http',  # Add protocol to context
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+                'protocol': 'https'
             })
-    
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
             email.content_subtype = "html"
             email.send()
-    
-            logger.info(f"Activation email sent to {to_email}")
-    
+
             return Response({
                 'message': 'Please confirm your email address to complete the registration.'
             }, status=status.HTTP_201_CREATED)
         else:
-            logger.error(f"Registration failed: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+    
+    
 
 class LoginViewSet(ObtainAuthToken, viewsets.ViewSet):
     permission_classes = (AllowAny,)

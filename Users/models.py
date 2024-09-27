@@ -80,8 +80,9 @@ class CustomUser(AbstractUser):
     address = models.CharField(max_length=150, default='')   
     phone = models.CharField(max_length=25, default='')
     email = models.EmailField(unique=True) 
-
+    activation_url = models.URLField(blank=True, null=True) 
     username = models.CharField(max_length=150, blank=True, null=True)
+    
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 

@@ -33,16 +33,19 @@ import logging
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 logger = logging.getLogger('Video_App')
 
-def activate(request, uidb64, token):
+def activate(request, uidb64=None, token=None):
     """
     Forwarding after email activation
     """
-    uidb64 = request.GET.get('uid')
-    token = request.GET.get('token')
-    domain = request.GET.get('domain')
+    # Use the provided uidb64 and token from the URL parameters
+    if uidb64 is None or token is None:
+        logger.error("Invalid activation link: Missing UID or token")
+        return HttpResponseBadRequest("Invalid activation link")
 
-    if not uidb64 or not token or not domain:
-        logger.error("Invalid activation link: Missing UID, token, or domain")
+    # Retrieve the domain from the request
+    domain = request.GET.get('domain')
+    if not domain:
+        logger.error("Invalid activation link: Missing domain")
         return HttpResponseBadRequest("Invalid activation link")
 
     CustomUser = get_user_model()
@@ -60,6 +63,7 @@ def activate(request, uidb64, token):
         token, created = Token.objects.get_or_create(user=user)
         logger.info(f"User {user.email} activated successfully.")
 
+        # Redirect based on the domain
         if "aleksanderdemyanovych.de" in domain:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
         elif "xn--bjrnteneicken-jmb.de" in domain:
@@ -69,6 +73,7 @@ def activate(request, uidb64, token):
 
     else:
         logger.warning(f"Activation link invalid for user with UID {uid}")
+        # Redirect based on the domain
         if "aleksanderdemyanovych.de" in domain:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
         elif "xn--bjrnteneicken-jmb.de" in domain:

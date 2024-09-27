@@ -66,18 +66,11 @@ def activate(request, uidb64, token):
         else:
             # Ungültiger Aktivierungslink
             print("Invalid activation link.")
-            referer = request.META.get('HTTP_REFERER', '')
-            if "aleksanderdemyanovych.de" in referer:
-                return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-            elif "xn--bjrnteneicken-jmb.de" in referer:
-                return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
-            else:
-                return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+            return redirect('https://videoflix.aleksanderdemyanovych.de/login')
     else:
         print("Invalid token or user.")
         # Fehlerbehandlung, falls Token ungültig ist
         return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-
 
 
         
@@ -116,6 +109,10 @@ class RegisterViewSet(viewsets.ViewSet):
             activation_url = f"https://{current_site.domain}/activate/{urlsafe_base64_encode(force_bytes(user.pk))}/{account_activation_token.make_token(user)}/"
             user.activation_url = activation_url  # Aktivierungs-URL speichern
             user.save()
+
+            # Debugging-Ausgaben
+            print(f"Activation URL: {activation_url}")  # URL zur Überprüfung
+            print(f"Token: {account_activation_token.make_token(user)}")  # Token zur Überprüfung
 
             mail_subject = 'Activate your account.'
             message = render_to_string('templates_activate_account.html', {

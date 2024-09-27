@@ -46,64 +46,28 @@ def activate(request, uidb64, token):
         user.is_active = True
         user.save()
         token, created = Token.objects.get_or_create(user=user)
-        return Response({'message': 'Account erfolgreich aktiviert'}, status=status.HTTP_200_OK)
+
+        referer = request.META.get('HTTP_REFERER', '')
+        
+        if "aleksanderdemyanovych.de" in referer:
+            return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
+        elif "xn--bjrnteneicken-jmb.de" in referer:
+            return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
+        else:
+            return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
+
     else:
-        return Response({'message': 'Ungültiger Aktivierungstoken oder Benutzer'}, status=status.HTTP_400_BAD_REQUEST)
-
+        referer = request.META.get('HTTP_REFERER', '')
+        
+        if "aleksanderdemyanovych.de" in referer:
+            return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+        elif "xn--bjrnteneicken-jmb.de" in referer:
+            return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
+        else:
+            return redirect('https://videoflix.aleksanderdemyanovych.de/login')
 
 
         
-# class RegisterViewSet(viewsets.ViewSet):
-#     """
-#     This ViewSet handles user registration.
-    
-#     Permissions:
-#     ------------
-#     - AllowAny: Allows any user to access the registration functionality.
-#     """
-#     permission_classes = (AllowAny,)
-
-#     def create(self, request):
-#         """
-#         Handles user registration and sends an activation email.
-        
-#         Process:
-#         --------
-#         - Validates the user data.
-#         - Saves the user, but sets them as inactive initially.
-#         - Sends an email with an activation link to confirm the account.
-        
-#         Returns:
-#         --------
-#         - On success: A message instructing the user to confirm their email.
-#         - On failure: Validation errors.
-#         """
-#         serializer = UserSerializer(data=request.data)
-#         if serializer.is_valid():
-#             user = serializer.save()
-#             user.is_active = False
-#             user.save()
-
-#             current_site = get_current_site(request)
-#             mail_subject = 'Activate your account.'
-#             message = render_to_string('templates_activate_account.html', {
-#                 'user': user,
-#                 'domain': current_site.domain,
-#                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-#                 'token': account_activation_token.make_token(user),
-#                 'protocol': 'http'
-#             })
-#             to_email = serializer.validated_data.get('email')
-#             email = EmailMessage(mail_subject, message, to=[to_email])
-#             email.content_subtype = "html"
-#             email.send()
-
-#             return Response({
-#                 'message': 'Please confirm your email address to complete the registration.'
-#             }, status=status.HTTP_201_CREATED)
-#         else:
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class RegisterViewSet(viewsets.ViewSet):
     """
     This ViewSet handles user registration.
@@ -135,29 +99,14 @@ class RegisterViewSet(viewsets.ViewSet):
             user.is_active = False
             user.save()
 
-            referer = request.META.get('HTTP_REFERER', '')
-            if "aleksanderdemyanovych.de" in referer:
-                domain = "videoflix.aleksanderdemyanovych.de"
-                protocol = "https"
-            elif "xn--bjrnteneicken-jmb.de" in referer:
-                domain = "videoflix.xn--bjrnteneicken-jmb.de"
-                protocol = "https"
-            else:
-                domain = "videoflix.aleksanderdemyanovych.de"
-                protocol = "https"
-
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            activation_link = f"{protocol}://{domain}/activate/{uid}/{token}/"
-
+            current_site = get_current_site(request)
             mail_subject = 'Activate your account.'
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
-                'activation_link': activation_link,  
-                'domain': domain,
-                'protocol': protocol,
-                'uid': uid,
-                'token': token
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+                'protocol': 'http'
             })
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
@@ -168,7 +117,8 @@ class RegisterViewSet(viewsets.ViewSet):
                 'message': 'Please confirm your email address to complete the registration.'
             }, status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     
 
 class LoginViewSet(ObtainAuthToken, viewsets.ViewSet):

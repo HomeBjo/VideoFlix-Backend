@@ -14,7 +14,7 @@ from Users.models import CustomUser
 from .tokens import account_activation_token
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode, urlencode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from django.contrib.auth import get_user_model
@@ -27,7 +27,7 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-
+from django.http import HttpResponseBadRequest
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
@@ -35,33 +35,37 @@ def activate(request, uidb64, token):
     """
         Forwarding after email activation
     """
-    CustomUser = get_user_model()  
+    uidb64 = request.GET.get('uid')
+    token = request.GET.get('token')
+    domain = request.GET.get('domain')
+
+    if not uidb64 or not token or not domain:
+        return HttpResponseBadRequest("Invalid activation link")
+
+    CustomUser = get_user_model()
     try:
-        uid = force_str(urlsafe_base64_decode(uidb64))  
+        uid = force_str(urlsafe_base64_decode(uidb64))
         user = CustomUser.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
         user = None
 
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
+
         token, created = Token.objects.get_or_create(user=user)
 
-        referer = request.META.get('HTTP_REFERER', '')
-        
-        if "aleksanderdemyanovych.de" in referer:
+        if "aleksanderdemyanovych.de" in domain:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
-        elif "xn--bjrnteneicken-jmb.de" in referer:
+        elif "xn--bjrnteneicken-jmb.de" in domain:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
 
     else:
-        referer = request.META.get('HTTP_REFERER', '')
-        
-        if "aleksanderdemyanovych.de" in referer:
+        if "aleksanderdemyanovych.de" in domain:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-        elif "xn--bjrnteneicken-jmb.de" in referer:
+        elif "xn--bjrnteneicken-jmb.de" in domain:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
@@ -100,13 +104,21 @@ class RegisterViewSet(viewsets.ViewSet):
             user.save()
 
             current_site = get_current_site(request)
+            domain = current_site.domain
+
             mail_subject = 'Activate your account.'
-            message = render_to_string('templates_activate_account.html', {
-                'user': user,
-                'domain': current_site.domain,
+            activation_params = {
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
-                'protocol': 'http'
+                'domain': domain 
+            }
+            query_string = urlencode(activation_params)
+
+            activation_link = f"http://{domain}/activate?{query_string}"
+
+            message = render_to_string('templates_activate_account.html', {
+                'user': user,
+                'activation_link': activation_link,
             })
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])

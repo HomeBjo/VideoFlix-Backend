@@ -115,11 +115,12 @@ class RegisterViewSet(viewsets.ViewSet):
             query_string = urlencode(activation_params)
 
             activation_link = f"https://{domain}/activate?{query_string}"
-
+            print(f"Activation link: {activation_link}")
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
                 'activation_link': activation_link,
             })
+            print(f"Email content: {message}")
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
             email.content_subtype = "html"

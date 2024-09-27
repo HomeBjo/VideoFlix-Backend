@@ -33,26 +33,30 @@ CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 def activate(request, uidb64, token):
     """
-        Forwarding after email activation
+    Forwarding after email activation.
     """
     CustomUser = get_user_model()  
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))  
         user = CustomUser.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
         user = None
 
+    # Debugging-Ausgaben
+    print(f"UID: {uid}, Token: {token}, User: {user}")
+
     if user is not None and account_activation_token.check_token(user, token):
-        # Compare the stored activation URL with expected URLs
+        # Referer-URL abrufen
         referer = request.META.get('HTTP_REFERER', '')
-        
-        # Check against the stored activation URL
+        print(f"Referer: {referer}, Stored Activation URL: {user.activation_url}")
+
+        # Überprüfen, ob die gespeicherte Aktivierungs-URL im Referer enthalten ist
         if user.activation_url and user.activation_url in referer:
             user.is_active = True
             user.save()
             token, created = Token.objects.get_or_create(user=user)
-            
-            # Redirect based on the referer
+
+            # Weiterleitung basierend auf dem Referer
             if "aleksanderdemyanovych.de" in referer:
                 return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
             elif "xn--bjrnteneicken-jmb.de" in referer:
@@ -60,7 +64,8 @@ def activate(request, uidb64, token):
             else:
                 return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
         else:
-            # Invalid activation link
+            # Ungültiger Aktivierungslink
+            print("Invalid activation link.")
             referer = request.META.get('HTTP_REFERER', '')
             if "aleksanderdemyanovych.de" in referer:
                 return redirect('https://videoflix.aleksanderdemyanovych.de/login')
@@ -68,6 +73,11 @@ def activate(request, uidb64, token):
                 return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
             else:
                 return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+    else:
+        print("Invalid token or user.")
+        # Fehlerbehandlung, falls Token ungültig ist
+        return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+
 
 
         
@@ -99,12 +109,12 @@ class RegisterViewSet(viewsets.ViewSet):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            user.is_active = False
+            user.is_active = False  # Benutzer zunächst inaktiv
 
-            # Determine the activation URL based on the current site
+            # Aktivierungs-URL basierend auf der aktuellen Site bestimmen
             current_site = get_current_site(request)
             activation_url = f"https://{current_site.domain}/activate/{urlsafe_base64_encode(force_bytes(user.pk))}/{account_activation_token.make_token(user)}/"
-            user.activation_url = activation_url  # Save the activation URL
+            user.activation_url = activation_url  # Aktivierungs-URL speichern
             user.save()
 
             mail_subject = 'Activate your account.'
@@ -125,6 +135,7 @@ class RegisterViewSet(viewsets.ViewSet):
             }, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     
     
 

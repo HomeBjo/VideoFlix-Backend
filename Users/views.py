@@ -27,7 +27,7 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-
+import logging
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
@@ -249,38 +249,57 @@ class LogoutViewSet(viewsets.ViewSet):
         logout(request)
         return Response({'message': 'Logout successful'})
     
+logger = logging.getLogger(__name__)
 
 class CheckEmailView(viewsets.ViewSet):
-    """
-    Checks if an email is already registered in the system.
-    
-    Permissions:
-    ------------
-    - AllowAny: Allows any user to check if an email exists.
-    """
     permission_classes = (AllowAny,)
 
     def create(self, request):
-        """
-        Verifies if the provided email is already registered.
-
-        Process:
-        --------
-        - Takes the email from the request.
-        - Checks if a user with this email exists in the system.
-
-        Returns:
-        --------
-        - True if the email exists, False otherwise.
-        """
         email = request.data.get('email')
+        logger.debug(f"Received email check request for email: {email}")  # Logge die E-Mail-Anfrage
+
         if not email:
+            logger.error('Email is required.')
             raise ValidationError({'error': 'Email is required.'})
-        
+
         CustomUser = get_user_model()
         if CustomUser.objects.filter(email=email).exists():
+            logger.info(f"Email exists: {email}")  # Logge, wenn die E-Mail existiert
             return Response({'exists': True}, status=status.HTTP_200_OK)
+        
+        logger.info(f"Email does not exist: {email}")  # Logge, wenn die E-Mail nicht existiert
         return Response({'exists': False}, status=status.HTTP_200_OK)
+# class CheckEmailView(viewsets.ViewSet):
+#     """
+#     Checks if an email is already registered in the system.
+    
+#     Permissions:
+#     ------------
+#     - AllowAny: Allows any user to check if an email exists.
+#     """
+#     permission_classes = (AllowAny,)
+
+#     def create(self, request):
+#         """
+#         Verifies if the provided email is already registered.
+
+#         Process:
+#         --------
+#         - Takes the email from the request.
+#         - Checks if a user with this email exists in the system.
+
+#         Returns:
+#         --------
+#         - True if the email exists, False otherwise.
+#         """
+#         email = request.data.get('email')
+#         if not email:
+#             raise ValidationError({'error': 'Email is required.'})
+        
+#         CustomUser = get_user_model()
+#         if CustomUser.objects.filter(email=email).exists():
+#             return Response({'exists': True}, status=status.HTTP_200_OK)
+#         return Response({'exists': False}, status=status.HTTP_200_OK)
 
     
 class PasswordResetAPIView(APIView):

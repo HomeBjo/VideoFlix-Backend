@@ -2,6 +2,8 @@
 from pathlib import Path
 from decouple import config
 import os
+import logging
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -292,3 +294,21 @@ EMAIL_HOST_PASSWORD = config('GMAIL_PW')
 # 4h timer
 PASSWORD_RESET_TIMEOUT = 14400
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'debug.log'),  # Hier den Pfad zur Logdatei anpassen
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

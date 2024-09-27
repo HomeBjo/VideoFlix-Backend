@@ -49,6 +49,8 @@ def activate(request, uidb64=None, token=None):
         logger.error(f"User activation failed: {e}")
         user = None
 
+    domain = request.GET.get('domain', '')
+
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
@@ -56,14 +58,12 @@ def activate(request, uidb64=None, token=None):
         token, created = Token.objects.get_or_create(user=user)
         logger.info(f"User {user.email} activated successfully.")
 
-        domain = request.GET.get('domain', '')  # Domain sollte hier auch verfügbar sein
         if "aleksanderdemyanovych.de" in domain:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
         elif "xn--bjrnteneicken-jmb.de" in domain:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
-
     else:
         logger.warning(f"Activation link invalid for user with UID {uid}")
         if "aleksanderdemyanovych.de" in domain:
@@ -72,7 +72,6 @@ def activate(request, uidb64=None, token=None):
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-
 
 
         
@@ -106,31 +105,35 @@ class RegisterViewSet(viewsets.ViewSet):
             user = serializer.save()
             user.is_active = False
             user.save()
-
+    
             current_site = get_current_site(request)
             domain = current_site.domain
-
+    
             mail_subject = 'Activate your account.'
             activation_params = {
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
             }
-
+    
             activation_link = f"https://{domain}/activate/{activation_params['uid']}/{activation_params['token']}/"
             logger.info(f"Activation link for user {user.email}: {activation_link}")
-
+    
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
                 'activation_link': activation_link,
+                'domain': domain,  # Add domain to context
+                'uid': activation_params['uid'],  # Add uid to context
+                'token': activation_params['token'],  # Add token to context
+                'protocol': 'https' if request.is_secure() else 'http',  # Add protocol to context
             })
-
+    
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
             email.content_subtype = "html"
             email.send()
-
+    
             logger.info(f"Activation email sent to {to_email}")
-
+    
             return Response({
                 'message': 'Please confirm your email address to complete the registration.'
             }, status=status.HTTP_201_CREATED)

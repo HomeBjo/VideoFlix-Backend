@@ -114,7 +114,7 @@ class RegisterViewSet(viewsets.ViewSet):
             }
             query_string = urlencode(activation_params)
 
-            activation_link = f"http://{domain}/activate?{query_string}"
+            activation_link = f"https://{domain}/activate?{query_string}"
 
             message = render_to_string('templates_activate_account.html', {
                 'user': user,

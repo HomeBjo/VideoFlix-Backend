@@ -57,7 +57,8 @@ ALLOWED_HOSTS = [
     'gruppe49345.developerakademie.org',
     'videoflix.xn--bjrnteneicken-jmb.de', 
     'videoflix.aleksanderdemyanovych.de',
-    'videoflix.videoflixgruppe.de'
+    'videoflix.videoflixgruppe.de',
+    '34.90.109.186'
 ]
 
 # Django Toolbar

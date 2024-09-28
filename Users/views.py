@@ -96,7 +96,7 @@ class RegisterViewSet(viewsets.ViewSet):
             user.is_active = False
             
             current_site = get_current_site(request)
-            activation_url = f"http://{current_site.domain}"
+            activation_url = f"https://{current_site.domain}"
             user.activation_url = activation_url
             user.save()
             print('current user:', user)

@@ -28,7 +28,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 
-
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 def activate(request, uidb64, token):
@@ -47,18 +46,18 @@ def activate(request, uidb64, token):
         user.save()
         token, created = Token.objects.get_or_create(user=user)
 
-        domain_user_value = user.domain_user
-        if domain_user_value == 1:
+        
+        if user.domain_user == 1:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
-        elif domain_user_value == 2:
+        elif user.domain_user == 2:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
 
     else:
-        if domain_user_value == 1:
+        if user.domain_user == 1:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-        elif domain_user_value == 2:
+        elif user.domain_user == 2:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
@@ -93,16 +92,20 @@ class RegisterViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             user = serializer.save()
             user.is_active = False
-            host = request.META.get('HTTP_HOST')
+            host = request.build_absolute_uri()
+            # host = request.META.get('HTTP_HOST')
             if "videoflix.aleksanderdemyanovych.de" in host:
                 user.domain_user = 1
             elif "videoflix.xn--bjrnteneicken-jmb.de" in host:
                 user.domain_user = 2
+            else:
+                user.domain_user = 0
             user.domain_user = host
             
             user.save()
 
             current_site = get_current_site(request)
+            print('current_site.domain',current_site.domain)
             mail_subject = 'Activate your account.'
             message = render_to_string('templates_activate_account.html', {
                 'user': user,

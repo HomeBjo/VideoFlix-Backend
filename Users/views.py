@@ -95,6 +95,7 @@ class RegisterViewSet(viewsets.ViewSet):
             user = serializer.save()
             user.is_active = False
             
+            current_site = get_current_site(request)
             current_host = request.META.get('HTTP_HOST')
             activation_url = f"https://{current_host}"
             user.activation_url = activation_url

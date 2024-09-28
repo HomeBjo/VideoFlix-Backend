@@ -95,9 +95,11 @@ class RegisterViewSet(viewsets.ViewSet):
             user = serializer.save()
             user.is_active = False
             
-            current_site = get_current_site(request)
-            current_host = request.META.get('HTTP_HOST')
-            activation_url = f"{current_host}"
+            activation_url = request.build_absolute_uri('/')  # Basis-URL
+            activation_url = activation_url.rstrip('/')  # Schrägstrich entfernen
+            # current_site = get_current_site(request)
+            # current_host = request.META.get('HTTP_HOST')
+            # activation_url = f"{current_host}"
             user.activation_url = activation_url
             user.save()
             print('current user:', user)
@@ -105,7 +107,7 @@ class RegisterViewSet(viewsets.ViewSet):
             mail_subject = 'Activate your account.'
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
-                'domain': current_host,
+                'domain': activation_url,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
                 'protocol': 'https'

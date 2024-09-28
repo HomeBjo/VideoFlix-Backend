@@ -100,8 +100,6 @@ class RegisterViewSet(viewsets.ViewSet):
                 user.domain_user = 2
             else:
                 user.domain_user = 0
-            user.domain_user = host
-            
             user.save()
 
             current_site = get_current_site(request)

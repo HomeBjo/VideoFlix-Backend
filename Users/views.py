@@ -44,13 +44,11 @@ def activate(request, uidb64, token):
 
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
-        user_link = user.activation_url
         user.save()
         
-        # referer = request.META.get('HTTP_REFERER', '')
-        print(user_link)
+        user_link = user.activation_url
+        print('user_link: ',user_link)
         
-        # Check the referer and set the appropriate redirect URL
         if "videoflix.aleksanderdemyanovych.de" in user_link:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
         elif "videoflix.xn--bjrnteneicken-jmb.de" in user_link:
@@ -59,15 +57,13 @@ def activate(request, uidb64, token):
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
 
     else:
-        # referer = request.META.get('HTTP_REFERER', '')
-        
-        # Handle failed activation attempts
         if "videoflix.aleksanderdemyanovych.de" in user_link:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
         elif "videoflix.xn--bjrnteneicken-jmb.de" in user_link:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+        
         
 class RegisterViewSet(viewsets.ViewSet):
     """
@@ -103,17 +99,22 @@ class RegisterViewSet(viewsets.ViewSet):
             activation_url = f"http://{current_site.domain}"
             user.activation_url = activation_url
             user.save()
-
+            print('current user:', user)
+            print(f"Activation URL: {activation_url}")
             mail_subject = 'Activate your account.'
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
-                'activation_url': activation_url
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+                'protocol': 'https'
             })
             to_email = serializer.validated_data.get('email')
+            print('send to_email:', to_email)
             email = EmailMessage(mail_subject, message, to=[to_email])
             email.content_subtype = "html"
             email.send()
-
+            
             return Response({
                 'message': 'Please confirm your email address to complete the registration.'
             }, status=status.HTTP_201_CREATED)
@@ -260,11 +261,14 @@ class CheckEmailView(viewsets.ViewSet):
         - True if the email exists, False otherwise.
         """
         email = request.data.get('email')
+        print('email:',email)
         if not email:
+            print('email not found:',email)
             raise ValidationError({'error': 'Email is required.'})
         
         CustomUser = get_user_model()
         if CustomUser.objects.filter(email=email).exists():
+            print('email found:',email)
             return Response({'exists': True}, status=status.HTTP_200_OK)
         return Response({'exists': False}, status=status.HTTP_200_OK)
 

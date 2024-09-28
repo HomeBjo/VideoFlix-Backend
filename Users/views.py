@@ -44,25 +44,27 @@ def activate(request, uidb64, token):
 
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
+        user_link = user.activation_url
         user.save()
         
-        referer = request.META.get('HTTP_REFERER', '')
+        # referer = request.META.get('HTTP_REFERER', '')
+        print(user_link)
         
         # Check the referer and set the appropriate redirect URL
-        if "videoflix.aleksanderdemyanovych.de" in referer:
+        if "videoflix.aleksanderdemyanovych.de" in user_link:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
-        elif "videoflix.xn--bjrnteneicken-jmb.de" in referer:
+        elif "videoflix.xn--bjrnteneicken-jmb.de" in user_link:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
 
     else:
-        referer = request.META.get('HTTP_REFERER', '')
+        # referer = request.META.get('HTTP_REFERER', '')
         
         # Handle failed activation attempts
-        if "videoflix.aleksanderdemyanovych.de" in referer:
+        if "videoflix.aleksanderdemyanovych.de" in user_link:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-        elif "videoflix.xn--bjrnteneicken-jmb.de" in referer:
+        elif "videoflix.xn--bjrnteneicken-jmb.de" in user_link:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')

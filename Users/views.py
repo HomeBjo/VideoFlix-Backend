@@ -109,7 +109,7 @@ class RegisterViewSet(viewsets.ViewSet):
                 'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
-                'protocol': 'http'
+                'protocol': 'https'
             })
             to_email = serializer.validated_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])

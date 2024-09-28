@@ -49,17 +49,18 @@ def activate(request, uidb64, token):
         user_link = user.activation_url
         print('user_link: ',user_link)
         
-        if "videoflix.aleksanderdemyanovych.de" in user_link:
+        domain_user_value = user.domain_user
+        if domain_user_value == 1:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
-        elif "videoflix.xn--bjrnteneicken-jmb.de" in user_link:
+        elif domain_user_value == 2:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
 
     else:
-        if "videoflix.aleksanderdemyanovych.de" in user_link:
+        if domain_user_value == 1:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-        elif "videoflix.xn--bjrnteneicken-jmb.de" in user_link:
+        elif domain_user_value == 2:
             return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
         else:
             return redirect('https://videoflix.aleksanderdemyanovych.de/login')
@@ -95,19 +96,20 @@ class RegisterViewSet(viewsets.ViewSet):
             user = serializer.save()
             user.is_active = False
             
-            activation_url = request.build_absolute_uri('/')  # Basis-URL
-            activation_url = activation_url.rstrip('/')  # Schrägstrich entfernen
-            # current_site = get_current_site(request)
-            # current_host = request.META.get('HTTP_HOST')
-            # activation_url = f"{current_host}"
-            user.activation_url = activation_url
+            current_site = get_current_site(request)
+            host = request.META.get('HTTP_HOST')
+            if "videoflix.aleksanderdemyanovych.de" in host:
+                user.domain_user = 1
+            elif "videoflix.xn--bjrnteneicken-jmb.de" in host:
+                user.domain_user = 2
+            user.domain_user = host
             user.save()
-            print('current user:', user)
-            print(f"Activation URL: {activation_url}")
+            print('user:', user)
+            print(f"Activation URL: {user.domain_user}")
             mail_subject = 'Activate your account.'
             message = render_to_string('templates_activate_account.html', {
                 'user': user,
-                'domain': activation_url,
+                'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
                 'protocol': 'https'

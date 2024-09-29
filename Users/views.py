@@ -92,14 +92,6 @@ class RegisterViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             user = serializer.save()
             user.is_active = False
-            host = request.build_absolute_uri()
-            # host = request.META.get('HTTP_HOST')
-            if "videoflix.aleksanderdemyanovych.de" in host:
-                user.domain_user = 1
-            elif "videoflix.xn--bjrnteneicken-jmb.de" in host:
-                user.domain_user = 2
-            else:
-                user.domain_user = 0
             user.save()
 
             current_site = get_current_site(request)

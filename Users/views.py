@@ -45,22 +45,15 @@ def activate(request, uidb64, token):
         user.is_active = True
         user.save()
         token, created = Token.objects.get_or_create(user=user)
-
-        
-        if user.domain_user == 1:
-            return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
-        elif user.domain_user == 2:
-            return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/video_site')
-        else:
-            return redirect('https://videoflix.aleksanderdemyanovych.de/video_site')
-
     else:
-        if user.domain_user == 1:
-            return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-        elif user.domain_user == 2:
-            return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
-        else:
-            return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+        user = None
+
+    if user and user.domain_user == 1:
+        return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+    elif user and user.domain_user == 2:
+        return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
+    else:
+        return redirect('https://videoflix.aleksanderdemyanovych.de/login')
 
         
 class RegisterViewSet(viewsets.ViewSet):

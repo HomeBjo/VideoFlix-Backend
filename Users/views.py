@@ -88,7 +88,6 @@ class RegisterViewSet(viewsets.ViewSet):
             user.save()
 
             current_site = get_current_site(request)
-            print('current_site.domain',current_site.domain)
             mail_subject = 'Activate your account.'
             message = render_to_string('templates_activate_account.html', {
                 'user': user,

@@ -50,12 +50,8 @@ def convert_video(source, resolution, suffix):
     try:
         run = subprocess.run(cmd_hls, capture_output=True, shell=True)
         run.check_returncode()
-        print(f"Video converted successfully to: {target}")
         return target
     except subprocess.CalledProcessError as e:
-        print(f"Video converted not successfully to: {e}")
-        print(f"FFmpeg output: {e.output}")
-        print(f"FFmpeg stderr: {e.stderr}")
         return None
 
 

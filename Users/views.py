@@ -1,4 +1,5 @@
 
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
@@ -52,6 +53,8 @@ def activate(request, uidb64, token):
         return redirect('https://videoflix.aleksanderdemyanovych.de/login')
     elif user and user.domain_user == 2:
         return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
+    else:
+         return HttpResponse("Your account has already been activated.", content_type='text/plain')
         
 class RegisterViewSet(viewsets.ViewSet):
     """

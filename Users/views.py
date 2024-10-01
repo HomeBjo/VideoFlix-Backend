@@ -52,9 +52,6 @@ def activate(request, uidb64, token):
         return redirect('https://videoflix.aleksanderdemyanovych.de/login')
     elif user and user.domain_user == 2:
         return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
-    else:
-        return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-
         
 class RegisterViewSet(viewsets.ViewSet):
     """

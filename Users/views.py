@@ -33,28 +33,30 @@ CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 def activate(request, uidb64, token):
     """
-        Forwarding after email activation
+    Forwarding after email activation
     """
-    CustomUser = get_user_model()  
+    CustomUser = get_user_model()
     try:
-        uid = force_str(urlsafe_base64_decode(uidb64))  
+        uid = force_str(urlsafe_base64_decode(uidb64))
         user = CustomUser.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
         user = None
 
     if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save()
-        token, created = Token.objects.get_or_create(user=user)
+        if user.is_active:
+            return HttpResponse("Your account has already been activated.", content_type='text/plain')
+        else:
+            user.is_active = True
+            user.save()
+            token, created = Token.objects.get_or_create(user=user)
+            if user.domain_user == 1:
+                return redirect('https://videoflix.aleksanderdemyanovych.de/login')
+            elif user.domain_user == 2:
+                return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
     else:
-        user = None
+        return HttpResponse("The activation link is invalid or has expired.", content_type='text/plain')
 
-    if user and user.domain_user == 1:
-        return redirect('https://videoflix.aleksanderdemyanovych.de/login')
-    elif user and user.domain_user == 2:
-        return redirect('https://videoflix.xn--bjrnteneicken-jmb.de/login')
-    else:
-         return HttpResponse("Your account has already been activated.", content_type='text/plain')
+    return HttpResponse("Your account has already been activated.", content_type='text/plain')
         
 class RegisterViewSet(viewsets.ViewSet):
     """

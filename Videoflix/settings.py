@@ -60,7 +60,7 @@ ALLOWED_HOSTS = [
     'videoflix.videoflixgruppe.de',
     '34.90.109.186'
 ]
-# Django Toolbar
+
 # Django Toolbar
 INTERNAL_IPS = [
     "127.0.0.1",

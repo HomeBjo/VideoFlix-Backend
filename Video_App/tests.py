@@ -8,78 +8,68 @@ from Users.models import CustomUser
 class VideoViewSetTest(APITestCase):
     
     def setUp(self):
-        # Set up einen Test-User und Videos für den Test
+        """
+        Sets up test user and video objects before each test.
+        """
         self.user = CustomUser.objects.create_user(username='testuser', email='test@test.de', password='password')
         self.client = APIClient()
-        self.client.force_authenticate(user=self.user)  # Nutzer authentifizieren
+        self.client.force_authenticate(user=self.user)
         
-        # Verwende SimpleUploadedFile um eine Testdatei zu simulieren
         self.video_file = SimpleUploadedFile("video1.mp4", b"file_content", content_type="video/mp4")
         
-        # Erstelle ein paar Test-Videos
         self.video1 = Video.objects.create(title='Test Video 1', category='Music', video_file=self.video_file)
         self.video2 = Video.objects.create(title='Test Video 2', category='Movie', video_file=self.video_file)
         
     def test_get_videos(self):
         """
-        Testet das Abrufen aller Videos.
+        Tests retrieving all videos.
         """
-        url = '/videos/get_videos/'  # Direkte URL als String
+        url = '/videos/get_videos/'
         response = self.client.get(url)
         
-        print(f"Anzahl der Videos in der Antwort: {len(response.data)}")
+        print(f"Number of videos in response: {len(response.data)}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)  # Wir haben 2 Videos erstellt
+        self.assertEqual(len(response.data), 2)
 
     def test_favorites(self):
         """
-        Testet das Favorisieren eines Videos.
+        Tests retrieving a user's favorite videos.
         """
-        # Erst füge ein Video zu den Favoriten hinzu
         FavoriteVideo.objects.create(user=self.user, video=self.video1)
         
-        url = '/videos/get_videos/favorites/'  # Direkte URL als String
+        url = '/videos/get_videos/favorites/'
         response = self.client.get(url)
         
-        print(f"Anzahl der Videos in der Antwort: {len(response.data)}")
-        
+        print(f"Number of videos in response: {len(response.data)}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Wir haben nur ein Favoriten-Video
+        self.assertEqual(len(response.data), 1)
 
     def test_toggle_favorite(self):
         """
-        Testet das Hinzufügen und Entfernen eines Videos zu den Favoriten.
+        Tests adding and removing a video from favorites.
         """
-        url = '/videos/get_videos/toggle_favorite/'  # Direkte URL als String
-        data = {'fav_video': self.video1.id}  # Verwende das korrekte Feld 'fav_videos'
+        url = '/videos/get_videos/toggle_favorite/'
+        data = {'fav_video': self.video1.id}
         
-        print(f"11111111",data )
+        print("11111111", data)
     
-        # Füge das Video zu den Favoriten hinzu
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-    
-        # Stelle sicher, dass das Video zu den Favoriten hinzugefügt wurde
         self.assertTrue(FavoriteVideo.objects.filter(user=self.user, video=self.video1).exists())
     
-        # Entferne das Video aus den Favoriten
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-    
-        # Stelle sicher, dass das Video entfernt wurde
         self.assertFalse(FavoriteVideo.objects.filter(user=self.user, video=self.video1).exists())
         
     def test_category_videos(self):
         """
-        Testet das Abrufen von Videos, die nach Kategorie gefiltert sind.
+        Tests retrieving videos filtered by category.
         """
-        url = f'/videos/get_videos/category/{self.video1.category}/'  # Direkte URL als String mit Kategorie
+        url = f'/videos/get_videos/category/{self.video1.category}/'
         response = self.client.get(url)
     
-        # Ausgabe der Antwort, um zu prüfen, ob sie korrekt ist (optional)
-        print(f"22222222 categroy '{self.video1.category}': {response.data}")
+        print(f"22222222 category '{self.video1.category}': {response.data}")
     
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Stelle sicher, dass nur ein Video mit der entsprechenden Kategorie zurückgegeben wird
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['title'], self.video1.title)        
+        self.assertEqual(response.data[0]['title'], self.video1.title)
